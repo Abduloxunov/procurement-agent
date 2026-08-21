@@ -1,0 +1,739 @@
+<title>Sourcing Desk Defence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+  :root{
+    --paper:#f4f7f7; --surface:#fff; --sunk:#eaeff0; --ink:#0f191c;
+    --mute:#5b696d; --faint:#7c8a8d; --line:#d9e2e1; --hard:#c2cfce;
+    --probe:#125b66; --probe-soft:#e2f0f1;
+    --signal:#a9550c; --signal-soft:#fbeedf;
+    --ok:#26654a; --ok-soft:#e2f0e8;
+    --alert:#9c3527; --alert-soft:#fbe9e6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0c1416; --surface:#121e21; --sunk:#0a1214; --ink:#e2eaea;
+      --mute:#96a5a7; --faint:#7e8d90; --line:#243336; --hard:#334446;
+      --probe:#59b8c4; --probe-soft:#10292d;
+      --signal:#dd9146; --signal-soft:#2a1f13;
+      --ok:#5fba8c; --ok-soft:#122620;
+      --alert:#e08170; --alert-soft:#2a1815;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0c1416; --surface:#121e21; --sunk:#0a1214; --ink:#e2eaea;
+    --mute:#96a5a7; --faint:#7e8d90; --line:#243336; --hard:#334446;
+    --probe:#59b8c4; --probe-soft:#10292d;
+    --signal:#dd9146; --signal-soft:#2a1f13;
+    --ok:#5fba8c; --ok-soft:#122620;
+    --alert:#e08170; --alert-soft:#2a1815;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%}
+  body{
+    background:var(--paper);color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;
+    line-height:1.5;overflow:hidden;
+  }
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+
+  .deck{height:100vh;position:relative}
+  .slide{
+    position:absolute;inset:0;
+    display:none;flex-direction:column;justify-content:center;
+    padding:5vh 6vw 9vh;overflow-y:auto;
+  }
+  .slide.on{display:flex}
+
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace;font-size:clamp(10px,1vw,12px);
+    letter-spacing:.18em;text-transform:uppercase;color:var(--probe);
+    margin:0 0 clamp(10px,2vh,20px);
+  }
+  h1{
+    font-family:Archivo,sans-serif;font-weight:800;
+    font-size:clamp(34px,6.4vw,86px);line-height:1;letter-spacing:-.028em;
+    margin:0 0 clamp(12px,2.4vh,26px);text-wrap:balance;
+  }
+  h2{
+    font-family:Archivo,sans-serif;font-weight:700;
+    font-size:clamp(26px,4.2vw,52px);line-height:1.06;letter-spacing:-.022em;
+    margin:0 0 clamp(12px,2.4vh,26px);text-wrap:balance;max-width:20ch;
+  }
+  h3{
+    font-family:Archivo,sans-serif;font-weight:600;
+    font-size:clamp(15px,1.7vw,21px);margin:0 0 8px;letter-spacing:-.008em;
+  }
+  p{font-size:clamp(15px,1.55vw,21px);margin:0 0 clamp(8px,1.4vh,16px);max-width:56ch;color:var(--mute)}
+  p.big{font-size:clamp(18px,2vw,27px);color:var(--ink);max-width:24ch}
+  p b,li b{color:var(--ink);font-weight:600}
+  ul{margin:0 0 clamp(8px,1.4vh,16px);padding-left:22px;max-width:56ch}
+  li{font-size:clamp(14px,1.5vw,20px);margin-bottom:clamp(5px,.9vh,11px);color:var(--mute)}
+
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,3.4vw,52px);align-items:center}
+  .cols.wide-right{grid-template-columns:.82fr 1.18fr}
+  .cols.wide-left{grid-template-columns:1.18fr .82fr}
+  @media (max-width:900px){.cols,.cols.wide-right,.cols.wide-left{grid-template-columns:1fr;gap:18px}}
+
+  .hero-num{
+    font-family:Archivo,sans-serif;font-weight:800;
+    font-size:clamp(46px,10vw,132px);line-height:.94;letter-spacing:-.04em;
+    color:var(--signal);
+  }
+  .hero-sub{font-family:"IBM Plex Mono",monospace;font-size:clamp(12px,1.3vw,17px);color:var(--faint)}
+
+  .card{
+    background:var(--surface);border:1px solid var(--line);border-radius:8px;
+    padding:clamp(14px,2vw,22px);
+  }
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+  .card .k{
+    font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--faint);display:block;margin-bottom:7px;
+  }
+  .card p{font-size:clamp(13px,1.25vw,16px);margin:0}
+
+  .quote{
+    border-left:3px solid var(--signal);padding:clamp(10px,1.6vw,18px) clamp(14px,2vw,24px);
+    background:var(--signal-soft);border-radius:0 8px 8px 0;
+    font-size:clamp(15px,1.7vw,23px);color:var(--ink);max-width:44ch;
+  }
+  .quote small{display:block;margin-top:8px;font-size:.66em;color:var(--mute);font-family:"IBM Plex Mono",monospace}
+
+  figure{margin:0;width:100%}
+  figure svg{display:block;width:100%;height:auto;max-height:66vh}
+  figcaption{
+    font-size:clamp(11px,1.05vw,14px);color:var(--faint);margin-top:10px;
+    font-family:"IBM Plex Mono",monospace;
+  }
+
+  table{border-collapse:collapse;width:100%;font-size:clamp(11.5px,1.15vw,16px)}
+  th,td{padding:7px 11px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--faint);font-weight:500}
+  td.num{text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+  tr.win td{background:var(--ok-soft)}
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+
+  pre{
+    background:var(--sunk);border:1px solid var(--line);border-radius:8px;
+    padding:clamp(11px,1.6vw,18px);overflow-x:auto;margin:0 0 12px;
+    font-family:"IBM Plex Mono",monospace;font-size:clamp(11px,1.1vw,15px);
+    line-height:1.62;color:var(--ink);
+  }
+  pre .c{color:var(--faint)}
+  pre .g{color:var(--ok)}
+  pre .r{color:var(--alert)}
+  pre .b{color:var(--probe)}
+
+  .beat{display:grid;grid-template-columns:auto 1fr;gap:10px 14px;align-items:baseline;
+    max-width:60ch;margin-bottom:clamp(9px,1.5vh,16px)}
+  .beat .lab{
+    font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.11em;
+    text-transform:uppercase;color:var(--faint);padding-top:3px;white-space:nowrap;
+  }
+  .beat .txt{font-size:clamp(14px,1.45vw,19px);color:var(--mute)}
+  .beat .txt b{color:var(--ink)}
+  .beat.res .txt b{color:var(--ok)}
+
+  /* chrome */
+  .bar{position:fixed;left:0;bottom:0;height:3px;background:var(--probe);
+    transition:width .28s ease;z-index:10}
+  .nums{position:fixed;right:20px;bottom:16px;font-family:"IBM Plex Mono",monospace;
+    font-size:12px;color:var(--faint);z-index:10}
+  .clock{position:fixed;left:20px;bottom:14px;font-family:"IBM Plex Mono",monospace;
+    font-size:11px;color:var(--faint);z-index:10;letter-spacing:.06em}
+  .hint{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;
+    font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--faint);
+    z-index:10;opacity:.6}
+  @media print{.bar,.nums,.hint,.clock{display:none}
+    .slide{display:flex!important;position:relative;height:100vh;page-break-after:always}}
+</style>
+
+<div class="deck" id="deck">
+
+<!-- 1 ---------------------------------------------------------------- -->
+<section class="slide on">
+  <p class="eyebrow">Project defence</p>
+  <h1>Sourcing&nbsp;Desk</h1>
+  <p class="big">A team of AI agents that sources industrial parts and tells you what they
+  actually cost delivered.</p>
+  <p class="mono" style="color:var(--faint);font-size:clamp(12px,1.2vw,15px);margin-top:2vh">
+    github.com/Abduloxunov/procurement-agent
+  </p>
+</section>
+
+<!-- 2 ---------------------------------------------------------------- -->
+<section class="slide">
+  <p class="eyebrow">The problem</p>
+  <div class="cols">
+    <div>
+      <h2>The price on the page is not the price you pay</h2>
+      <p>A colleague of mine sources sensors and industrial components. He is handed a part
+      number and has to come back with a price, a lead time, and a recommendation
+      he can defend.</p>
+      <p>He opens thirty tabs. Prices in different currencies, at different quantities,
+      under different shipping terms. Then he does the customs maths in his head,
+      or does not do it at all.</p>
+    </div>
+    <div>
+      <div class="hero-num">$45 &rarr; $68.55</div>
+      <p class="hero-sub" style="margin-top:14px">the same sensor, once it reaches Tashkent</p>
+      <div class="quote" style="margin-top:3vh">
+        A 52&nbsp;% gap between the sticker price and the real one.
+        <small>and it is different for every supplier</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ---------------------------------------------------------------- -->
+<section class="slide">
+  <p class="eyebrow">Why it matters</p>
+  <h2>Ranking on listed price picks the wrong supplier</h2>
+  <div class="tablewrap" style="max-width:900px">
+    <table>
+      <thead><tr><th>supplier</th><th>listed</th><th>terms</th>
+        <th style="text-align:right">freight</th><th style="text-align:right">duty + vat</th>
+        <th style="text-align:right">landed / unit</th></tr></thead>
+      <tbody>
+        <tr class="win"><td>Shenzhen Tiancheng</td><td class="num">260 CNY</td><td class="mono">EXW</td>
+          <td class="num">250.00</td><td class="num">764.88</td><td class="num"><b>$60.15</b></td></tr>
+        <tr><td>Hunan Firstrate</td><td class="num">40 USD</td><td class="mono">EXW</td>
+          <td class="num">250.00</td><td class="num">787.76</td><td class="num">$61.96</td></tr>
+        <tr><td>Tashkent Instrument</td><td class="num">71 USD</td><td class="mono">DDP</td>
+          <td class="num">0.00</td><td class="num">0.00</td><td class="num">$71.71</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:2.4vh;max-width:64ch">Three prices that look comparable and are not.
+  260&nbsp;CNY is <b>$38.67</b>. The DDP quote already contains freight and customs.
+  Put them on one axis and the order changes.</p>
+</section>
+
+<!-- 4 ---------------------------------------------------------------- -->
+<section class="slide">
+  <p class="eyebrow">What we built</p>
+  <h2>Give it a part number. Get back a decision.</h2>
+  <div class="cards" style="margin-top:1vh">
+    <div class="card"><span class="k">searches</span>
+      <p>Google for the English supplier web, Baidu for the Chinese industrial web.</p></div>
+    <div class="card"><span class="k">reads</span>
+      <p>Supplier pages in any language, extracting price, MOQ, lead time and specs.</p></div>
+    <div class="card"><span class="k">computes</span>
+      <p>Landed cost — currency, shipping terms, freight, duty, VAT.</p></div>
+    <div class="card"><span class="k">checks</span>
+      <p>Whether a cheaper alternative part is actually a substitute.</p></div>
+    <div class="card"><span class="k">remembers</span>
+      <p>What you paid last time, from whom, and whether it arrived on time.</p></div>
+    <div class="card"><span class="k">asks</span>
+      <p>Drafts emails to suppliers who publish no price. You approve every one.</p></div>
+  </div>
+</section>
+
+<!-- 5 ---------------------------------------------------------------- -->
+<section class="slide">
+  <p class="eyebrow">Demo</p>
+  <h1 style="font-size:clamp(30px,5vw,64px)">Live demonstration</h1>
+  <p class="big" style="max-width:34ch">One part number in. One comparison table out.</p>
+  <div class="cards" style="max-width:840px;margin-top:2vh">
+    <div class="card"><span class="k">1</span><p>Type the requirement in plain words</p></div>
+    <div class="card"><span class="k">2</span><p>Watch the agents search and extract</p></div>
+    <div class="card"><span class="k">3</span><p>Read the landed-cost table</p></div>
+    <div class="card"><span class="k">4</span><p>Ask it why</p></div>
+  </div>
+</section>
+
+<!-- 6 — ORCHESTRATION ------------------------------------------------- -->
+<section class="slide">
+  <p class="eyebrow">How it works &middot; orchestration</p>
+  <h2 style="max-width:26ch">Five specialists, one manager, one inspector</h2>
+  <figure>
+    <svg viewBox="0 0 1000 400" role="img" aria-label="Supervisor delegates to four specialists, then a critic verifies the answer" font-family="IBM Plex Sans, sans-serif">
+      <defs>
+        <marker id="a1" markerWidth="10" markerHeight="10" refX="7" refY="3.2" orient="auto">
+          <path d="M0 0 L7 3.2 L0 6.4 z" fill="var(--faint)"/></marker>
+        <marker id="a2" markerWidth="10" markerHeight="10" refX="7" refY="3.2" orient="auto">
+          <path d="M0 0 L7 3.2 L0 6.4 z" fill="var(--alert)"/></marker>
+      </defs>
+
+      <rect x="20" y="24" width="150" height="46" rx="7" fill="var(--sunk)" stroke="var(--hard)"/>
+      <text x="95" y="53" text-anchor="middle" font-size="16" font-weight="600" fill="var(--ink)">Question</text>
+      <line x1="170" y1="47" x2="316" y2="47" stroke="var(--faint)" stroke-width="1.6" marker-end="url(#a1)"/>
+
+      <rect x="320" y="18" width="230" height="58" rx="8" fill="var(--probe-soft)" stroke="var(--probe)" stroke-width="2"/>
+      <text x="435" y="43" text-anchor="middle" font-size="18" font-weight="700" fill="var(--probe)">Supervisor</text>
+      <text x="435" y="63" text-anchor="middle" font-size="13" fill="var(--probe)">picks who works next</text>
+
+      <line x1="380" y1="76" x2="130" y2="150" stroke="var(--faint)" stroke-width="1.4" marker-end="url(#a1)"/>
+      <line x1="410" y1="76" x2="330" y2="150" stroke="var(--faint)" stroke-width="1.4" marker-end="url(#a1)"/>
+      <line x1="460" y1="76" x2="545" y2="150" stroke="var(--faint)" stroke-width="1.4" marker-end="url(#a1)"/>
+      <line x1="490" y1="76" x2="745" y2="150" stroke="var(--faint)" stroke-width="1.4" marker-end="url(#a1)"/>
+
+      <g font-size="15" font-weight="600">
+        <rect x="30" y="154" width="200" height="62" rx="8" fill="var(--surface)" stroke="var(--hard)"/>
+        <text x="130" y="180" text-anchor="middle" fill="var(--ink)">Scout</text>
+        <text x="130" y="200" text-anchor="middle" font-size="12.5" font-weight="400" fill="var(--mute)">searches and scrapes</text>
+
+        <rect x="245" y="154" width="200" height="62" rx="8" fill="var(--surface)" stroke="var(--hard)"/>
+        <text x="345" y="180" text-anchor="middle" fill="var(--ink)">Part</text>
+        <text x="345" y="200" text-anchor="middle" font-size="12.5" font-weight="400" fill="var(--mute)">reads datasheets</text>
+
+        <rect x="460" y="154" width="200" height="62" rx="8" fill="var(--surface)" stroke="var(--hard)"/>
+        <text x="560" y="180" text-anchor="middle" fill="var(--ink)">History</text>
+        <text x="560" y="200" text-anchor="middle" font-size="12.5" font-weight="400" fill="var(--mute)">what we paid before</text>
+
+        <rect x="675" y="154" width="200" height="62" rx="8" fill="var(--surface)" stroke="var(--hard)"/>
+        <text x="775" y="180" text-anchor="middle" fill="var(--ink)">Analyst</text>
+        <text x="775" y="200" text-anchor="middle" font-size="12.5" font-weight="400" fill="var(--mute)">runs the cost maths</text>
+      </g>
+
+      <path d="M130 216 C130 258 300 250 360 82" fill="none" stroke="var(--faint)" stroke-width="1.2" stroke-dasharray="5 4"/>
+      <path d="M775 216 C775 258 600 250 520 82" fill="none" stroke="var(--faint)" stroke-width="1.2" stroke-dasharray="5 4"/>
+      <text x="205" y="248" font-size="12.5" fill="var(--faint)" font-family="IBM Plex Mono, monospace">every result returns to the supervisor</text>
+
+      <line x1="550" y1="47" x2="686" y2="47" stroke="var(--faint)" stroke-width="1.6" marker-end="url(#a1)"/>
+      <text x="618" y="36" text-anchor="middle" font-size="12" fill="var(--ok)" font-family="IBM Plex Mono, monospace">enough</text>
+      <rect x="690" y="24" width="140" height="46" rx="7" fill="var(--surface)" stroke="var(--hard)"/>
+      <text x="760" y="53" text-anchor="middle" font-size="16" font-weight="600" fill="var(--ink)">Draft answer</text>
+
+      <line x1="760" y1="70" x2="760" y2="292" stroke="var(--faint)" stroke-width="1.6" marker-end="url(#a1)"/>
+
+      <rect x="640" y="296" width="240" height="62" rx="8" fill="var(--alert-soft)" stroke="var(--alert)" stroke-width="2"/>
+      <text x="760" y="322" text-anchor="middle" font-size="18" font-weight="700" fill="var(--alert)">Critic</text>
+      <text x="760" y="342" text-anchor="middle" font-size="12.5" fill="var(--alert)">is every number sourced?</text>
+
+      <path d="M640 327 C560 327 560 47 836 47" fill="none" stroke="var(--alert)" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#a2)"/>
+      <text x="470" y="322" font-size="12.5" fill="var(--alert)" font-family="IBM Plex Mono, monospace">rejected &rarr; write it again</text>
+
+      <line x1="880" y1="327" x2="936" y2="327" stroke="var(--faint)" stroke-width="1.6" marker-end="url(#a1)"/>
+      <rect x="906" y="300" width="76" height="54" rx="8" fill="var(--ok-soft)" stroke="var(--ok)"/>
+      <text x="944" y="334" text-anchor="middle" font-size="24">&#10003;</text>
+    </svg>
+    <figcaption>Specialists never talk to each other — everything goes through the supervisor,
+    so a wrong decision shows up in exactly one place.</figcaption>
+  </figure>
+</section>
+
+<!-- 7 — THE MECHANISM ------------------------------------------------- -->
+<section class="slide">
+  <p class="eyebrow">How it works &middot; the mechanism</p>
+  <div class="cols wide-right">
+    <div>
+      <h2 style="max-width:16ch">The AI decides. Code orchestrates.</h2>
+      <p>This is the part people assume is magic. It is not.</p>
+      <p>The model never runs anything and never jumps anywhere. It writes a
+      single word into shared memory. Ordinary Python reads that word and calls
+      the matching function.</p>
+      <p><b>Its only power over what happens next is the value it writes.</b></p>
+    </div>
+    <figure>
+      <svg viewBox="0 0 620 400" role="img" aria-label="Three layers: model decides, code dispatches, function runs" font-family="IBM Plex Sans, sans-serif">
+        <defs><marker id="a3" markerWidth="10" markerHeight="10" refX="7" refY="3.2" orient="auto">
+          <path d="M0 0 L7 3.2 L0 6.4 z" fill="var(--faint)"/></marker></defs>
+
+        <rect x="20" y="16" width="580" height="98" rx="9" fill="var(--probe-soft)" stroke="var(--probe)"/>
+        <text x="40" y="42" font-size="11" letter-spacing="1.8" fill="var(--probe)" font-family="IBM Plex Mono, monospace">1 &middot; THE MODEL</text>
+        <text x="40" y="70" font-size="15" fill="var(--ink)">Reads the question and what has been</text>
+        <text x="40" y="92" font-size="15" fill="var(--ink)">gathered, then emits one word:</text>
+        <rect x="392" y="52" width="180" height="44" rx="6" fill="var(--surface)" stroke="var(--probe)"/>
+        <text x="482" y="80" text-anchor="middle" font-size="19" font-weight="600" fill="var(--probe)" font-family="IBM Plex Mono, monospace">"analyst"</text>
+
+        <line x1="310" y1="114" x2="310" y2="146" stroke="var(--faint)" stroke-width="1.6" marker-end="url(#a3)"/>
+        <text x="325" y="136" font-size="12" fill="var(--faint)" font-family="IBM Plex Mono, monospace">written into state</text>
+
+        <rect x="20" y="150" width="580" height="112" rx="9" fill="var(--sunk)" stroke="var(--hard)"/>
+        <text x="40" y="176" font-size="11" letter-spacing="1.8" fill="var(--faint)" font-family="IBM Plex Mono, monospace">2 &middot; PLAIN PYTHON &mdash; NO AI HERE</text>
+        <text x="40" y="206" font-size="15" fill="var(--ink)" font-family="IBM Plex Mono, monospace">def route(state):</text>
+        <text x="40" y="230" font-size="15" fill="var(--ink)" font-family="IBM Plex Mono, monospace">    return state["plan"]</text>
+        <text x="40" y="252" font-size="13" fill="var(--mute)">a dictionary lookup decides the next step</text>
+
+        <line x1="310" y1="262" x2="310" y2="294" stroke="var(--faint)" stroke-width="1.6" marker-end="url(#a3)"/>
+
+        <rect x="20" y="298" width="580" height="86" rx="9" fill="var(--surface)" stroke="var(--hard)"/>
+        <text x="40" y="324" font-size="11" letter-spacing="1.8" fill="var(--faint)" font-family="IBM Plex Mono, monospace">3 &middot; THE FUNCTION RUNS</text>
+        <text x="40" y="352" font-size="15" fill="var(--ink)">The analyst computes landed cost in Python,</text>
+        <text x="40" y="373" font-size="15" fill="var(--ink)">and the result goes back into state.</text>
+      </svg>
+      <figcaption>Same loop, every step. The model chooses; the code executes.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 8 — LADDER -------------------------------------------------------- -->
+<section class="slide">
+  <p class="eyebrow">How it works &middot; getting the data</p>
+  <div class="cols wide-left">
+    <figure>
+      <svg viewBox="0 0 640 380" role="img" aria-label="Three extraction methods, each falling through to the next" font-family="IBM Plex Sans, sans-serif">
+        <defs><marker id="a4" markerWidth="10" markerHeight="10" refX="7" refY="3.2" orient="auto">
+          <path d="M0 0 L7 3.2 L0 6.4 z" fill="var(--faint)"/></marker></defs>
+
+        <rect x="20" y="18" width="600" height="86" rx="9" fill="var(--ok-soft)" stroke="var(--ok)" stroke-width="1.8"/>
+        <text x="44" y="46" font-size="17" font-weight="700" fill="var(--ok)">1 &nbsp;Read the page directly</text>
+        <text x="44" y="72" font-size="13.5" fill="var(--mute)">Manufacturer sites, Made-in-China. Fast, reliable.</text>
+        <text x="44" y="92" font-size="13.5" fill="var(--mute)">Most of the good data comes from here.</text>
+        <line x1="320" y1="104" x2="320" y2="130" stroke="var(--faint)" stroke-width="1.5" marker-end="url(#a4)"/>
+        <text x="336" y="123" font-size="12" fill="var(--faint)" font-family="IBM Plex Mono, monospace">blocked?</text>
+
+        <rect x="20" y="134" width="600" height="86" rx="9" fill="var(--signal-soft)" stroke="var(--signal)" stroke-width="1.8"/>
+        <text x="44" y="162" font-size="17" font-weight="700" fill="var(--signal)">2 &nbsp;Open a real browser</text>
+        <text x="44" y="188" font-size="13.5" fill="var(--mute)">Sites that need JavaScript, or refuse a plain request.</text>
+        <text x="44" y="208" font-size="13.5" fill="var(--mute)">Recovered a page that returned 403 Forbidden.</text>
+        <line x1="320" y1="220" x2="320" y2="246" stroke="var(--faint)" stroke-width="1.5" marker-end="url(#a4)"/>
+        <text x="336" y="239" font-size="12" fill="var(--faint)" font-family="IBM Plex Mono, monospace">still blocked?</text>
+
+        <rect x="20" y="250" width="600" height="86" rx="9" fill="var(--surface)" stroke="var(--alert)" stroke-width="1.8"/>
+        <text x="44" y="278" font-size="17" font-weight="700" fill="var(--alert)">3 &nbsp;Ask the human, or ask the supplier</text>
+        <text x="44" y="304" font-size="13.5" fill="var(--mute)">Alibaba shows a slider puzzle. We do not fight it.</text>
+        <text x="44" y="324" font-size="13.5" fill="var(--mute)">Paste the page, or send an email and wait for a quote.</text>
+
+        <text x="320" y="364" text-anchor="middle" font-size="13" fill="var(--faint)" font-family="IBM Plex Mono, monospace">every row records which method produced it</text>
+      </svg>
+    </figure>
+    <div>
+      <h2 style="max-width:14ch">Some doors do not open</h2>
+      <p>Alibaba answers with a CAPTCHA. We could have spent weeks fighting it,
+      and lost the fight every time they changed it.</p>
+      <p>So the system degrades on purpose: when a page cannot be read, it says
+      so and offers the two things that still work — paste it in yourself, or
+      email the supplier.</p>
+      <p><b>Nothing silently returns a wrong price.</b></p>
+    </div>
+  </div>
+</section>
+
+<!-- 9 — LANDED COST --------------------------------------------------- -->
+<section class="slide">
+  <p class="eyebrow">Results &middot; the calculation</p>
+  <h2 style="max-width:22ch">Where the other 52&nbsp;% comes from</h2>
+  <figure>
+    <svg viewBox="0 0 1000 300" role="img" aria-label="Cost breakdown from goods to landed total" font-family="IBM Plex Sans, sans-serif">
+      <line x1="60" y1="238" x2="960" y2="238" stroke="var(--line)" stroke-width="1.4"/>
+
+      <rect x="80" y="128" width="150" height="110" rx="4" fill="var(--probe)" opacity=".82"/>
+      <text x="155" y="176" text-anchor="middle" font-size="21" font-weight="700" fill="#fff" font-family="IBM Plex Mono, monospace">$900</text>
+      <text x="155" y="200" text-anchor="middle" font-size="12.5" fill="#fff" opacity=".9">20 &times; $45</text>
+      <text x="155" y="262" text-anchor="middle" font-size="14" font-weight="600" fill="var(--ink)">Goods</text>
+
+      <rect x="255" y="205" width="120" height="33" rx="4" fill="var(--probe)" opacity=".45"/>
+      <text x="315" y="228" text-anchor="middle" font-size="15" font-weight="600" fill="var(--ink)" font-family="IBM Plex Mono, monospace">$120</text>
+      <text x="315" y="262" text-anchor="middle" font-size="14" font-weight="600" fill="var(--ink)">Freight</text>
+      <text x="315" y="281" text-anchor="middle" font-size="11.5" fill="var(--faint)">air, China &rarr; UZ</text>
+
+      <rect x="400" y="182" width="120" height="56" rx="4" fill="var(--signal)" opacity=".72"/>
+      <text x="460" y="217" text-anchor="middle" font-size="15" font-weight="600" fill="#fff" font-family="IBM Plex Mono, monospace">$204</text>
+      <text x="460" y="262" text-anchor="middle" font-size="14" font-weight="600" fill="var(--ink)">Customs duty</text>
+      <text x="460" y="281" text-anchor="middle" font-size="11.5" fill="var(--faint)">20 % of CIF</text>
+
+      <rect x="545" y="198" width="120" height="40" rx="4" fill="var(--signal)" opacity=".45"/>
+      <text x="605" y="225" text-anchor="middle" font-size="15" font-weight="600" fill="var(--ink)" font-family="IBM Plex Mono, monospace">$147</text>
+      <text x="605" y="262" text-anchor="middle" font-size="14" font-weight="600" fill="var(--ink)">VAT</text>
+      <text x="605" y="281" text-anchor="middle" font-size="11.5" fill="var(--faint)">12 % of CIF + duty</text>
+
+      <line x1="700" y1="60" x2="700" y2="252" stroke="var(--line)" stroke-dasharray="4 4"/>
+
+      <rect x="740" y="70" width="190" height="168" rx="5" fill="var(--ok)" opacity=".9"/>
+      <text x="835" y="140" text-anchor="middle" font-size="30" font-weight="800" fill="#fff" font-family="Archivo, sans-serif">$1,371</text>
+      <text x="835" y="172" text-anchor="middle" font-size="15" fill="#fff" opacity=".92">landed total</text>
+      <text x="835" y="200" text-anchor="middle" font-size="19" font-weight="700" fill="#fff" font-family="IBM Plex Mono, monospace">$68.55 / unit</text>
+      <text x="835" y="262" text-anchor="middle" font-size="14" font-weight="600" fill="var(--ink)">What you actually pay</text>
+
+      <text x="80" y="42" font-size="13" fill="var(--faint)" font-family="IBM Plex Mono, monospace">Uzbekistan is landlocked &mdash; no sea freight. Air, rail or road only.</text>
+    </svg>
+    <figcaption>Computed in Python, never by the language model. Every assumption is printed
+    on the row, so a wrong one is visible instead of buried.</figcaption>
+  </figure>
+</section>
+
+<!-- 10 — SENSITIVITY -------------------------------------------------- -->
+<section class="slide">
+  <p class="eyebrow">Results &middot; the insight</p>
+  <div class="cols wide-left">
+    <figure>
+      <svg viewBox="0 0 620 350" role="img" aria-label="Which supplier is cheapest changes with order quantity" font-family="IBM Plex Sans, sans-serif">
+        <text x="20" y="26" font-size="12" letter-spacing="1.4" fill="var(--faint)" font-family="IBM Plex Mono, monospace">CHEAPEST SUPPLIER, BY ORDER SIZE</text>
+
+        <g font-family="IBM Plex Mono, monospace">
+          <text x="20" y="86" font-size="17" font-weight="600" fill="var(--ink)">1</text>
+          <rect x="60" y="66" width="418" height="34" rx="4" fill="var(--alert)" opacity=".22"/>
+          <text x="76" y="89" font-size="14.5" font-family="IBM Plex Sans" fill="var(--ink)">Tashkent Instrument Supply</text>
+          <text x="466" y="89" text-anchor="end" font-size="15" font-weight="600" fill="var(--ink)">$71.71</text>
+
+          <text x="20" y="146" font-size="17" font-weight="600" fill="var(--ink)">10</text>
+          <rect x="60" y="126" width="395" height="34" rx="4" fill="var(--signal)" opacity=".24"/>
+          <text x="76" y="149" font-size="14.5" font-family="IBM Plex Sans" fill="var(--ink)">Hunan Firstrate</text>
+          <text x="443" y="149" text-anchor="end" font-size="15" font-weight="600" fill="var(--ink)">$67.60</text>
+
+          <text x="20" y="206" font-size="17" font-weight="600" fill="var(--ink)">50</text>
+          <rect x="60" y="186" width="352" height="34" rx="4" fill="var(--ok)" opacity=".3"/>
+          <text x="76" y="209" font-size="14.5" font-family="IBM Plex Sans" fill="var(--ink)">Shenzhen Tiancheng</text>
+          <text x="400" y="209" text-anchor="end" font-size="15" font-weight="600" fill="var(--ink)">$60.15</text>
+
+          <text x="20" y="266" font-size="17" font-weight="600" fill="var(--ink)">200</text>
+          <rect x="60" y="246" width="309" height="34" rx="4" fill="var(--ok)" opacity=".46"/>
+          <text x="76" y="269" font-size="14.5" font-family="IBM Plex Sans" fill="var(--ink)">Shenzhen Tiancheng</text>
+          <text x="357" y="269" text-anchor="end" font-size="15" font-weight="600" fill="var(--ink)">$52.87</text>
+        </g>
+
+        <text x="20" y="320" font-size="13" fill="var(--faint)" font-family="IBM Plex Mono, monospace">order size &rarr; the answer changes three times</text>
+      </svg>
+    </figure>
+    <div>
+      <h2 style="max-width:15ch">The right answer depends on how many you buy</h2>
+      <p>At one unit, the local supplier wins — minimum shipping charges swamp
+      everything else.</p>
+      <p>At fifty, the Chinese quote wins by eleven dollars a unit.</p>
+      <p><b>Nobody checks this by hand.</b> It takes an hour in a spreadsheet, so
+      it does not get done, and the wrong supplier gets the order.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 11 — PROBLEM 1 ---------------------------------------------------- -->
+<section class="slide">
+  <p class="eyebrow">Problems we hit &middot; 1 of 3</p>
+  <h2 style="max-width:22ch">The model quietly invented a fact</h2>
+  <div style="margin-top:1vh">
+    <div class="beat"><span class="lab">what broke</span>
+      <span class="txt">Told <b>&ldquo;bought 56 sensors at $41 each&rdquo;</b>, it recorded the price as
+      <b>delivered, all costs included</b>. Nobody said that.</span></div>
+    <div class="beat"><span class="lab">why</span>
+      <span class="txt">$41 at the factory gate becomes about $60 delivered. The instruction
+      said &ldquo;never assume&rdquo;. It assumed anyway.</span></div>
+    <div class="beat"><span class="lab">what we did</span>
+      <span class="txt">Stopped trusting the instruction. A few lines of code now blank that
+      field unless the user's own words contain a shipping term.</span></div>
+    <div class="beat res"><span class="lab">result</span>
+      <span class="txt"><b>It asks instead of guessing</b> &mdash; and every future comparison
+      against that purchase stays honest.</span></div>
+  </div>
+  <div class="quote" style="margin-top:2vh;max-width:52ch">
+    An instruction is a suggestion. A check in code is a guarantee.
+    <small>we found three more of these the same way</small>
+  </div>
+</section>
+
+<!-- 12 — PROBLEM 2 ---------------------------------------------------- -->
+<section class="slide">
+  <p class="eyebrow">Problems we hit &middot; 2 of 3</p>
+  <h2 style="max-width:24ch">A bigger model was the obvious fix. It changed nothing.</h2>
+  <div style="margin-top:1vh">
+    <div class="beat"><span class="lab">what broke</span>
+      <span class="txt">Asked <b>&ldquo;what is the landed cost?&rdquo;</b>, the manager sent the
+      question to the datasheet reader. Wrong specialist.</span></div>
+    <div class="beat"><span class="lab">the obvious fix</span>
+      <span class="txt">Use a stronger, more expensive model. We tried it.
+      <b>Identical score, identical failure.</b></span></div>
+    <div class="beat"><span class="lab">the real cause</span>
+      <span class="txt">We had never told it that costing needs prices first. It reasoned
+      &ldquo;understand the part before pricing it&rdquo; &mdash; sensible in general, wrong here.</span></div>
+    <div class="beat res"><span class="lab">result</span>
+      <span class="txt">Two sentences of explanation. <b>Perfect routing on the cheap model.</b></span></div>
+  </div>
+  <div class="quote" style="margin-top:2vh;max-width:52ch">
+    We measured before we spent. The upgrade would have cost money and fixed nothing.
+  </div>
+</section>
+
+<!-- 13 — PROBLEM 3 ---------------------------------------------------- -->
+<section class="slide">
+  <p class="eyebrow">Problems we hit &middot; 3 of 3</p>
+  <h2 style="max-width:24ch">It compared two currencies and got it backwards</h2>
+  <div style="margin-top:1vh">
+    <div class="beat"><span class="lab">what broke</span>
+      <span class="txt">Asked for the cheapest listed price, it saw <b>260 CNY</b> and
+      <b>$40 USD</b> and answered $40. CNY&nbsp;260 is <b>$38.67</b>.</span></div>
+    <div class="beat"><span class="lab">why</span>
+      <span class="txt">We handed it two numbers in different units and expected it to do
+      the conversion in its head. It cannot, reliably.</span></div>
+    <div class="beat"><span class="lab">what we did</span>
+      <span class="txt">Convert in code first, then hand it a finished comparison. It reads
+      an answer instead of calculating one.</span></div>
+    <div class="beat res"><span class="lab">result</span>
+      <span class="txt"><b>Correct every time</b> &mdash; and the inspector agent, which had been
+      rejecting these, now passes them.</span></div>
+  </div>
+  <p style="margin-top:1.6vh;max-width:56ch"><b>All three bugs passed a test before we found them.</b>
+  None crashed. They produced confident, plausible, wrong answers &mdash; which is the
+  failure mode that matters with this technology.</p>
+</section>
+
+<!-- 14 — DEPLOYMENT --------------------------------------------------- -->
+<section class="slide">
+  <p class="eyebrow">Deployment</p>
+  <div class="cols">
+    <div>
+      <h2 style="max-width:16ch">It is running, and here is what it costs</h2>
+      <p>Backend in a Docker container on a Google Cloud VM. Frontend on Vercel.
+      They are independent — either can be redeployed alone.</p>
+      <p>The database is a file on a mounted volume, so purchase history survives
+      every redeploy.</p>
+    </div>
+    <div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>what</th><th style="text-align:right">cost</th></tr></thead>
+          <tbody>
+            <tr><td>Google Cloud VM</td><td class="num">free on credit, then ~$13/mo</td></tr>
+            <tr><td>Vercel</td><td class="num">free</td></tr>
+            <tr><td>AI model</td><td class="num">cents per search</td></tr>
+            <tr><td>Search API</td><td class="num">free, 250/month</td></tr>
+            <tr><td>Database, embeddings</td><td class="num">free, runs locally</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:1.6vh;font-size:clamp(13px,1.3vw,17px)">The limit that actually
+      bites is <b>250 searches a month</b>, not compute. So results are cached by
+      part number.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 15 — SAFETY ------------------------------------------------------- -->
+<section class="slide">
+  <p class="eyebrow">One design decision worth defending</p>
+  <div class="cols">
+    <div>
+      <h2 style="max-width:18ch">The agent never sends an email on its own</h2>
+      <p>It drafts. A person approves. Only then does anything leave the machine.</p>
+      <p>This is not a setting. There is no flag that overrides it, and only one
+      function in the codebase can send at all — it refuses any draft that has not
+      been approved.</p>
+      <p><b>Emailing a real supplier under someone's name is the only thing here
+      that cannot be undone.</b></p>
+    </div>
+    <div>
+      <pre><span class="c"># asking it to send an unapproved draft</span>
+POST /rfq/1/send
+<span class="r">403  "rfq #1 is 'drafted', not 'approved'."</span>
+
+<span class="c"># a person reviews the text and approves</span>
+POST /rfq/1/approve
+<span class="g">200  {"status": "approved"}</span>
+
+<span class="c"># now it will send</span>
+POST /rfq/1/send
+<span class="g">200  {"sent": true}</span></pre>
+      <p class="mono" style="font-size:clamp(11px,1.1vw,14px)">the same gate protects the
+      follow-up chasers</p>
+    </div>
+  </div>
+</section>
+
+<!-- 16 — NOT DONE ----------------------------------------------------- -->
+<section class="slide">
+  <p class="eyebrow">What is not done</p>
+  <h2 style="max-width:20ch">Three things I would fix first</h2>
+  <div class="cards" style="margin-top:1vh;max-width:1000px">
+    <div class="card"><span class="k">customs rates</span>
+      <p>The duty table is deliberately empty. Every calculation says
+      <b>&ldquo;20&nbsp;%, unverified&rdquo;</b> rather than inventing a rate. Filling it needs the
+      official tariff document.</p></div>
+    <div class="card"><span class="k">spec naming</span>
+      <p><i>output_signal</i> and <i>signal_output</i> are treated as two different
+      things. Harmless so far, but it clutters the comparison.</p></div>
+    <div class="card"><span class="k">email sending</span>
+      <p>Drafting, approval and refusal are all tested. Actually sending is written
+      but has not been run against a real mailbox.</p></div>
+  </div>
+  <p style="margin-top:2.4vh;max-width:58ch">Inventing plausible customs rates would have
+  been easy and would have looked better. It is also exactly the mistake this whole
+  project exists to prevent, so the number stays marked unverified until someone
+  checks it.</p>
+</section>
+
+<!-- 17 — LEARNED ------------------------------------------------------ -->
+<section class="slide">
+  <p class="eyebrow">What I learned</p>
+  <h2 style="max-width:20ch">Three things I did not know before this</h2>
+  <ul style="max-width:60ch;margin-top:1vh">
+    <li><b>Orchestration is not magic.</b> The model writes a word; ordinary code
+    reads it and calls a function. Once that clicked, the whole system became
+    debuggable.</li>
+    <li><b>Measure before you upgrade.</b> The obvious fix for a weak decision was a
+    stronger model. It scored identically. The problem was something I had failed
+    to explain.</li>
+    <li><b>The dangerous failures are the quiet ones.</b> Nothing crashed. Every bug
+    we found produced a confident, reasonable-looking, wrong answer.</li>
+  </ul>
+  <p style="margin-top:1.6vh;max-width:58ch">And one that is not technical: I built this
+  for a specific person doing a specific job. Every time I guessed what he needed
+  instead of asking, I built the wrong thing.</p>
+</section>
+
+<!-- 18 — CLOSE -------------------------------------------------------- -->
+<section class="slide">
+  <p class="eyebrow">Thank you</p>
+  <h1 style="font-size:clamp(30px,5.4vw,72px)">Questions</h1>
+  <div class="cols" style="margin-top:1vh">
+    <div>
+      <h3>Sourcing Desk</h3>
+      <p class="mono" style="font-size:clamp(12px,1.2vw,16px)">
+        github.com/Abduloxunov/procurement-agent</p>
+    </div>
+    <div class="quote">
+      A price is not a price until you know what it costs to get it here.
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="bar" id="bar"></div>
+<div class="nums" id="nums"></div>
+<div class="clock" id="clock">press T to start timer</div>
+<div class="hint">&larr; &rarr; navigate &middot; F fullscreen &middot; T timer</div>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var i = 0, started = null, tick = null;
+
+  function show(n){
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach(function(s, k){ s.classList.toggle('on', k === i); });
+    document.getElementById('bar').style.width =
+      ((i + 1) / slides.length * 100) + 'vw';
+    document.getElementById('nums').textContent = (i + 1) + ' / ' + slides.length;
+    if (location.hash !== '#' + (i + 1)) history.replaceState(null, '', '#' + (i + 1));
+  }
+
+  function paint(){
+    if (!started) return;
+    var s = Math.floor((Date.now() - started) / 1000);
+    var m = String(Math.floor(s / 60)).padStart(2, '0');
+    var r = String(s % 60).padStart(2, '0');
+    var el = document.getElementById('clock');
+    el.textContent = m + ':' + r;
+    el.style.color = s > 600 ? 'var(--alert)' : (s > 480 ? 'var(--signal)' : 'var(--faint)');
+  }
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); show(i + 1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(i - 1); }
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key === 'f' || e.key === 'F') {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else document.documentElement.requestFullscreen();
+    }
+    else if (e.key === 't' || e.key === 'T') {
+      if (tick) { clearInterval(tick); tick = null; started = null;
+        document.getElementById('clock').textContent = 'press T to start timer';
+        document.getElementById('clock').style.color = 'var(--faint)'; }
+      else { started = Date.now(); tick = setInterval(paint, 1000); paint(); }
+    }
+  });
+
+  document.addEventListener('click', function(e){
+    if (e.target.closest('a')) return;
+    show(i + (e.clientX > window.innerWidth * 0.35 ? 1 : -1));
+  });
+
+  show(parseInt((location.hash || '#1').slice(1), 10) - 1 || 0);
+})();
+</script>
