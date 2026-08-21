@@ -1,0 +1,57 @@
+# Render blueprint. In the dashboard: New > Blueprint, point at this repo.
+#
+# Native Python runtime rather than Docker, deliberately: the Docker image
+# carries Chromium for the browser rung, and Render's free instance has
+# 512 MB of RAM. Chromium wants 1-2 GB, so it could never launch there
+# anyway -- see docs/deploy.md.
+
+services:
+  - type: web
+    name: procurement-agent-api
+    runtime: python
+    plan: free
+    region: frankfurt          # closest Render region to Tashkent
+    rootDir: backend
+    healthCheckPath: /health
+
+    buildCommand: pip install -r requirements.txt
+
+    # init_db is re-runnable and non-destructive. It has to run on every
+    # boot because the free plan has no persistent disk -- the filesystem
+    # is wiped whenever the instance restarts.
+    startCommand: python scripts/init_db.py && uvicorn app.api:app --host 0.0.0.0 --port $PORT
+
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.10"
+
+      # Supplier names are frequently Chinese. Linux defaults to UTF-8, but
+      # setting it explicitly means a name can never crash a log write.
+      - key: PYTHONIOENCODING
+        value: utf-8
+
+      # sync: false means "prompt me in the dashboard, do not store in git".
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: SERPAPI_KEY
+        sync: false
+
+      # Set to the Vercel URL once the frontend is deployed.
+      - key: ALLOWED_ORIGINS
+        sync: false
+
+      - key: MODEL_DEFAULT
+        value: google/gemini-2.5-flash-lite
+      - key: MODEL_REASONING
+        value: google/gemini-2.5-flash-lite
+      - key: MODEL_VISION
+        value: google/gemini-2.5-flash-lite
+
+      - key: DESTINATION_COUNTRY
+        value: UZ
+      - key: VAT_RATE
+        value: "0.12"
+      - key: DEFAULT_DUTY_RATE
+        value: "0.20"
+      - key: BASE_CURRENCY
+        value: USD

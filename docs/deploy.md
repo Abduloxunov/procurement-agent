@@ -1,223 +1,175 @@
-# Deployment
+# Deploying — Render + Vercel
 
-Backend on a Google Cloud VM, frontend on Vercel.
+Backend on Render, frontend on Vercel. Both free.
 
 The two halves are independent: the frontend is static files that call the
 backend by URL, so either can be redeployed without touching the other.
 
 ---
 
-## Part 1 — Backend on the GCP VM
+## Read this first — three free-tier limits
 
-### 1. Open the port
+None of them break the project, but two of them will embarrass you in a demo
+if you meet them for the first time on stage.
 
-Once per project. The API listens on 8000.
+### 1. 512 MB of RAM — the browser rung cannot run
 
-```bash
-gcloud compute firewall-rules create allow-sourcing-desk \
-  --allow=tcp:8000 \
-  --target-tags=sourcing-desk \
-  --description="Sourcing Desk API"
+Render's free instance has 512 MB. Headless Chromium wants 1–2 GB. So the
+Playwright rung is **local-only**, and the deployed extraction ladder is:
 
-gcloud compute instances add-tags YOUR_VM_NAME \
-  --tags=sourcing-desk --zone=YOUR_ZONE
+```
+direct fetch  →  manual paste  →  RFQ email
 ```
 
-Note the VM's external IP — you need it in Part 2:
+The code already handles this. A page it cannot read returns a clear failure
+with a reason; it never invents a price. Say this plainly if asked — it is a
+hosting limit you designed around, not a missing feature.
+
+This is also why the blueprint uses Render's **native Python runtime instead
+of the Docker image**. The Dockerfile installs Chromium, which would only add
+~400 MB to a build that could never launch it.
+
+### 2. The instance sleeps after 15 minutes — cold start is about a minute
+
+**Warm it up before you present.** Open the API URL five minutes before you
+start:
 
 ```bash
-gcloud compute instances describe YOUR_VM_NAME --zone=YOUR_ZONE \
-  --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
+curl https://YOUR-SERVICE.onrender.com/health
 ```
 
-### 2. SSH in and install Docker
+If you skip this, your first click on stage hangs for a minute with no
+explanation.
+
+### 3. No persistent disk — the database resets on every restart
+
+SQLite and Qdrant are files, and the free plan wipes the filesystem whenever
+the instance restarts or redeploys. So:
+
+- `python scripts/init_db.py` runs on **every** boot (it is in the start
+  command, and it is re-runnable and non-destructive)
+- Purchases you log against the deployed instance **will not survive** a
+  restart
+- Anything you want present during the demo has to be created during the demo,
+  or seeded at startup
+
+For durable data, a paid disk is $0.25/GB per month — or run the backend on
+your GCP VM instead, where the Docker image with Chromium works fully.
+
+---
+
+## Part 1 — Backend on Render
+
+### Step 1 · Create the service
+
+1. [dashboard.render.com](https://dashboard.render.com) → **New** → **Blueprint**
+2. Connect the GitHub repo `Abduloxunov/procurement-agent`
+3. Render reads `render.yaml` from the repo root and proposes one web service
+4. Click **Apply**
+
+It will ask for the three secrets marked `sync: false`. Everything else — the
+Python version, the model names, the VAT and duty rates — is already in the
+blueprint.
+
+### Step 2 · Fill in the secrets
+
+| Key | Value |
+|---|---|
+| `OPENROUTER_API_KEY` | your key from openrouter.ai/keys |
+| `SERPAPI_KEY` | your key from serpapi.com |
+| `ALLOWED_ORIGINS` | `*` for now — narrow it in Step 6 |
+
+### Step 3 · Wait for the first build
+
+Three to five minutes. Most of it is installing `onnxruntime` and `fastembed`.
+Watch the log for `Application startup complete.`
+
+### Step 4 · Check it
 
 ```bash
-gcloud compute ssh YOUR_VM_NAME --zone=YOUR_ZONE
-```
-
-```bash
-sudo apt-get update && sudo apt-get install -y docker.io git
-sudo usermod -aG docker $USER
-newgrp docker          # or log out and back in
-```
-
-### 3. Clone and configure
-
-```bash
-git clone https://github.com/Abduloxunov/procurement-agent.git
-cd procurement-agent/backend
-cp .env.example .env
-nano .env
-```
-
-Fill in `OPENROUTER_API_KEY` and `SERPAPI_KEY`. Then lock it down — this file
-holds every secret the system has:
-
-```bash
-chmod 600 .env
-```
-
-### 4. Build and run
-
-```bash
-docker build -t sourcing-desk .
-
-docker run -d --name sourcing-desk --restart=unless-stopped \
-  -p 8000:8000 \
-  --shm-size=1g --ipc=host \
-  -v /var/sourcing-data:/app/data \
-  --env-file .env \
-  sourcing-desk
-```
-
-**`--shm-size=1g --ipc=host` are not optional.** Docker caps `/dev/shm` at
-64 MB, Chromium uses it heavily for its render pipeline, and without these
-the browser rung crashes under load instead of failing cleanly.
-
-**`-v /var/sourcing-data:/app/data`** is what keeps your database. SQLite and
-Qdrant are files inside the container; without the volume, every purchase you
-log dies with the next `docker run`.
-
-The build takes 5–10 minutes — it installs Chromium and bakes in the
-embedding model so the first request is not a two-minute download.
-
-### 5. Initialise the database
-
-Once, on first deploy:
-
-```bash
-docker exec -it sourcing-desk python scripts/init_db.py
-```
-
-### 6. Check it
-
-```bash
-curl http://localhost:8000/health
+curl https://YOUR-SERVICE.onrender.com/health
 ```
 
 ```json
 {"status":"ok","counts":{"parts":0,"offers":0,"purchases":0,"sources":6,"rfqs":0}}
 ```
 
-From your own machine, using the external IP:
+`sources: 6` proves `init_db.py` ran and seeded the registry. If you get
+`sources: 0`, the start command failed — check the logs.
 
-```bash
-curl http://EXTERNAL_IP:8000/health
-```
-
-If that hangs, the firewall rule or the network tag did not apply.
-
-### Updating later
-
-```bash
-cd ~/procurement-agent && git pull
-cd backend && docker build -t sourcing-desk .
-docker rm -f sourcing-desk
-docker run -d --name sourcing-desk --restart=unless-stopped \
-  -p 8000:8000 --shm-size=1g --ipc=host \
-  -v /var/sourcing-data:/app/data --env-file .env sourcing-desk
-```
-
-The volume survives, so your data does.
-
-### Logs
-
-```bash
-docker logs -f sourcing-desk
-```
+**If the service restarts repeatedly with no error**, it ran out of memory.
+The embedding model loads lazily on the first datasheet question, and that is
+the moment most likely to exceed 512 MB. Two ways out: skip datasheet
+questions in the demo, or move the backend to your GCP VM.
 
 ---
 
 ## Part 2 — Frontend on Vercel
 
-### 1. Point it at your backend
+### Step 5 · Point the frontend at the backend
 
 Edit `frontend/config.js`, commit, push:
 
 ```js
-window.API_BASE = "http://EXTERNAL_IP:8000";
+window.API_BASE = "https://YOUR-SERVICE.onrender.com";
 ```
 
-No trailing slash.
+No trailing slash. **Both are https**, so there is no mixed-content problem —
+this is the main reason Render is easier than a bare VM here.
 
-### 2. Deploy
+### Step 6 · Deploy
 
-**Via the dashboard:** New Project → import `procurement-agent` → set
-**Root Directory** to `frontend` → Deploy. Framework preset: Other. No build
-command, no output directory — it is static files.
+**Dashboard:** [vercel.com/new](https://vercel.com/new) → import the repo →
+set **Root Directory** to `frontend` → Framework Preset **Other** → Deploy.
+No build command, no output directory — it is static files.
 
-**Via CLI:**
+**CLI:**
 
 ```bash
 cd frontend
 npx vercel --prod
 ```
 
-### 3. Lock CORS to your frontend
+### Step 7 · Lock CORS down
 
-The backend defaults to `ALLOWED_ORIGINS=*`. Once you know the Vercel URL,
-narrow it:
+Back in Render → Environment → set:
 
-```bash
-# on the VM, in .env
+```
 ALLOWED_ORIGINS=https://procurement-agent.vercel.app
 ```
 
-Then restart the container.
-
----
-
-## The mixed-content problem
-
-**Vercel serves over https. Your VM serves over http. Browsers block https
-pages from calling http APIs**, so the frontend will load and every request
-will fail silently in the console.
-
-Three ways out, cheapest first:
-
-**a. Test over http.** Vercel deployments answer on http as well. Fine for a
-demo, not for anything real.
-
-**b. Caddy on the VM, with a domain.** If you have a domain, point an A
-record at the VM and let Caddy get a certificate automatically:
-
-```bash
-sudo apt-get install -y caddy
-sudo tee /etc/caddy/Caddyfile <<'EOF'
-api.yourdomain.com {
-    reverse_proxy localhost:8000
-}
-EOF
-sudo systemctl restart caddy
-```
-
-Then `window.API_BASE = "https://api.yourdomain.com"`, open port 443, and the
-problem is gone.
-
-**c. Serve the frontend from the VM too.** FastAPI already mounts the
-`frontend/` directory, so `http://EXTERNAL_IP:8000` serves the whole app with
-no CORS and no mixed content at all. Skip Vercel entirely if you would rather
-have one URL.
-
-Option (c) is the least work and the most reliable for a demo. Vercel is
-worth it when you want a proper URL to hand people.
+Use your real Vercel URL. Save; Render restarts automatically.
 
 ---
 
 ## Verify end to end
 
-1. Open the Vercel URL.
-2. The request dropdown populates — the frontend is reaching the backend.
-3. Type: *I need 50 FST100-2006A, budget $3000, by March. RS485 is a hard
-   requirement.*
-4. Press **Start** → a request is created with the budget and deadline parsed.
-5. Press **Search Google + Baidu** → offers appear.
-6. Ask *"which supplier is cheapest landed?"* → the agent trace streams live.
+1. Open the Vercel URL
+2. The request dropdown loads — the frontend is reaching Render
+3. Type: *I need 50 FST100-2006A, budget $3000, by March. RS485 is a hard requirement.*
+4. **Start** → a request is created with the budget and deadline parsed out
+5. **Search — quick** → offers appear
+6. Ask *"which supplier is cheapest landed?"* → the agent trace streams live
 
-If step 2 fails, open the browser console. `Failed to fetch` with nothing else
-is almost always mixed content; a CORS message means `ALLOWED_ORIGINS` is too
-narrow.
+If step 2 fails, open the browser console:
+
+| Symptom | Cause |
+|---|---|
+| Request hangs ~60s then works | Cold start. Expected. Warm it first. |
+| `Failed to fetch`, nothing else | `API_BASE` wrong, or the service is down |
+| A CORS message | `ALLOWED_ORIGINS` does not match the Vercel URL exactly |
+| `sources: 0` in /health | `init_db.py` did not run |
+
+---
+
+## Demo checklist
+
+Do these in order, five minutes before you present.
+
+- [ ] `curl .../health` to wake the instance — **do not skip this**
+- [ ] Open the Vercel URL and confirm the dropdown loads
+- [ ] Create one request and run a search, so there is data on screen
+- [ ] Leave the tab open — 15 minutes of idle puts it back to sleep
 
 ---
 
@@ -236,19 +188,35 @@ action in this system, so it is gated in code rather than by convention.
 
 | Item | Cost |
 |---|---|
-| GCP e2-small | free on the $300 credit, then ~$13/month |
+| Render web service | free (512 MB, sleeps after 15 min) |
 | Vercel hobby | free |
 | OpenRouter, gemini-2.5-flash-lite | cents per sourcing run |
-| SerpApi | free tier, 250 searches/month |
-| FastEmbed + Qdrant | free, runs in the container |
+| SerpApi | free, 250 searches/month |
+| FastEmbed + Qdrant | free, runs in the instance |
 
-The binding constraint is **SerpApi's 250 searches a month**, not compute or
-model spend. One thorough sourcing run uses two. Results are cached by part
-number for that reason.
+The binding constraint is **SerpApi's 250 searches a month**, not compute.
+One thorough run uses two, so results are cached by part number.
 
-## Sizing
+---
 
-Playwright is the only component with real requirements — headless Chromium
-wants 2 GB and survives on 1 GB with the flags above. Everything else here is
-light. An `e2-small` (2 GB) is comfortable; an `e2-micro` (1 GB) works but the
-browser rung will be fragile under load.
+## Alternative — the GCP VM
+
+If Render's 512 MB proves too tight, or you want the browser rung working in
+the deployed build, the Docker image runs fully on a small VM:
+
+```bash
+docker build -t procurement-agent .
+docker run -d --restart=unless-stopped -p 8000:8000 \
+  --shm-size=1g --ipc=host \
+  -v /var/procurement-data:/app/data \
+  --env-file .env \
+  procurement-agent
+```
+
+`--shm-size=1g --ipc=host` are not optional — Docker caps `/dev/shm` at 64 MB
+and Chromium crashes without them.
+
+The trade-off: the VM serves http, and a Vercel frontend on https cannot call
+an http API. Either put Caddy in front for a certificate, or serve the
+frontend from the VM too — FastAPI already mounts the `frontend/` directory,
+so `http://YOUR_IP:8000` gives you the whole app on one origin.
