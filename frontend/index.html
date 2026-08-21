@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sourcing Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --paper:#f4f7f7; --surface:#fff; --sunk:#eaeff0; --ink:#0f191c;
+    --mute:#5b696d; --faint:#7c8a8d; --line:#d9e2e1; --hard:#c2cfce;
+    --probe:#125b66; --probe-soft:#e2f0f1;
+    --signal:#a9550c; --signal-soft:#fbeedf;
+    --ok:#26654a; --ok-soft:#e2f0e8;
+    --alert:#9c3527; --alert-soft:#fbe9e6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0c1416; --surface:#121e21; --sunk:#0a1214; --ink:#e2eaea;
+      --mute:#96a5a7; --faint:#7e8d90; --line:#243336; --hard:#334446;
+      --probe:#59b8c4; --probe-soft:#10292d;
+      --signal:#dd9146; --signal-soft:#2a1f13;
+      --ok:#5fba8c; --ok-soft:#122620;
+      --alert:#e08170; --alert-soft:#2a1815;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15px;line-height:1.55}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+
+  header{background:var(--surface);border-bottom:1px solid var(--line);
+    padding:14px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  header h1{font-family:Archivo,sans-serif;font-size:19px;margin:0;letter-spacing:-.01em}
+  header .sub{color:var(--faint);font-size:12px;font-family:"IBM Plex Mono",monospace}
+  header .spacer{flex:1}
+  select,input,button{font:inherit;color:inherit;background:var(--surface);
+    border:1px solid var(--hard);border-radius:4px;padding:6px 10px}
+  input[type=number]{width:84px}
+  button{cursor:pointer;background:var(--sunk)}
+  button:hover{border-color:var(--probe);color:var(--probe)}
+  button.primary{background:var(--probe);border-color:var(--probe);color:#fff}
+  button.primary:hover{opacity:.9;color:#fff}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  button.tiny{padding:3px 8px;font-size:12px}
+
+  .wrap{display:grid;grid-template-columns:1fr 400px;gap:18px;padding:18px 22px 40px;
+    max-width:1560px;margin:0 auto;align-items:start}
+  @media (max-width:1080px){.wrap{grid-template-columns:1fr}}
+
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:7px;
+    overflow:hidden;margin-bottom:18px}
+  .panel h2{font-family:Archivo,sans-serif;font-size:13px;margin:0;
+    padding:11px 16px;border-bottom:1px solid var(--line);background:var(--sunk);
+    letter-spacing:.02em;display:flex;align-items:center;gap:10px}
+  .panel h2 .note{font-weight:400;color:var(--faint);font-size:11.5px;
+    font-family:"IBM Plex Mono",monospace}
+  .panel .body{padding:14px 16px}
+  .scroll{overflow-x:auto}
+
+  table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:720px}
+  th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--line);
+    vertical-align:top;white-space:nowrap}
+  th{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--faint);font-weight:500;background:var(--sunk)}
+  td.num{text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+  tr.best td{background:var(--ok-soft)}
+  tr.dq td{opacity:.62;text-decoration:line-through}
+  tbody tr:last-child td{border-bottom:0}
+
+  .st{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.07em;
+    text-transform:uppercase;padding:2px 6px;border-radius:3px;border:1px solid}
+  .st.verified{color:var(--ok);border-color:var(--ok);background:var(--ok-soft)}
+  .st.listed{color:var(--probe);border-color:var(--probe);background:var(--probe-soft)}
+  .st.needs_rfq,.st.rfq_sent{color:var(--signal);border-color:var(--signal);background:var(--signal-soft)}
+  .st.disqualified{color:var(--alert);border-color:var(--alert);background:var(--alert-soft)}
+
+  .flag{display:block;font-size:11px;color:var(--signal);white-space:normal;
+    margin-top:3px;font-family:"IBM Plex Mono",monospace}
+  .headline{padding:11px 16px;border-top:1px solid var(--line);font-size:13px;
+    background:var(--sunk)}
+  .headline b{color:var(--ok)}
+  .invert{color:var(--signal);display:block;margin-top:4px;font-size:12.5px}
+
+  /* chat */
+  #trace{max-height:230px;overflow-y:auto;padding:10px 16px;font-size:12px;
+    font-family:"IBM Plex Mono",monospace;border-bottom:1px solid var(--line);
+    background:var(--sunk)}
+  #trace .s{padding:2px 0;color:var(--mute)}
+  #trace .s b{color:var(--probe);font-weight:500}
+  #trace .s.rev b{color:var(--alert)}
+  #trace .s.ok b{color:var(--ok)}
+  #trace:empty{display:none}
+  #answer{padding:14px 16px;white-space:pre-wrap;min-height:60px}
+  #answer .meta{display:block;margin-top:12px;font-size:11.5px;color:var(--faint);
+    font-family:"IBM Plex Mono",monospace}
+  .ask{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--line)}
+  .ask input{flex:1}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px}
+  .chip{font-size:11.5px;padding:4px 9px;border:1px solid var(--hard);
+    border-radius:12px;cursor:pointer;color:var(--mute);background:var(--surface)}
+  .chip:hover{border-color:var(--probe);color:var(--probe)}
+
+  .rfq{border:1px solid var(--line);border-radius:5px;margin-bottom:10px}
+  .rfq .head{padding:8px 12px;background:var(--sunk);display:flex;gap:8px;
+    align-items:center;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .rfq .head .who{font-weight:600;font-size:13px}
+  .rfq .head .ref{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--faint)}
+  .rfq .head .sp{flex:1}
+  .rfq pre{margin:0;padding:11px 12px;font-size:11.5px;white-space:pre-wrap;
+    max-height:170px;overflow-y:auto;font-family:"IBM Plex Mono",monospace;color:var(--mute)}
+  .gate{background:var(--signal-soft);border-left:2px solid var(--signal);
+    padding:9px 12px;font-size:12.5px;margin-bottom:12px;border-radius:0 4px 4px 0}
+  .empty{color:var(--faint);font-size:13px;padding:4px 0}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Sourcing Desk</h1>
+  <span class="sub">landed cost, Tashkent</span>
+  <div class="spacer"></div>
+  <label class="sub">request</label>
+  <select id="req"></select>
+  <label class="sub">qty</label>
+  <input type="number" id="qty" value="50" min="1">
+  <button id="reload" class="primary">Recalculate</button>
+</header>
+
+<div class="wrap">
+  <div>
+    <div class="panel">
+      <h2>New request <span class="note">what do you need?</span></h2>
+      <div class="body">
+        <div class="ask" style="padding:0;border:0">
+          <input id="need" placeholder="I need 50 FST100-2006A, budget $3000, by March. RS485 is a hard requirement.">
+          <button id="needBtn" class="primary">Start</button>
+        </div>
+        <div id="needOut" style="margin-top:10px"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Comparison <span class="note" id="tableNote"></span></h2>
+      <div class="scroll"><table id="tbl">
+        <thead><tr>
+          <th>supplier</th><th>source</th><th>listed</th><th>usd</th>
+          <th>incoterm</th><th>freight</th><th>duty+vat</th>
+          <th>landed/unit</th><th>uplift</th><th>lead</th><th>state</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+      <div class="headline" id="headline"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Quantity sensitivity <span class="note">the winner changes with volume</span></h2>
+      <div class="scroll"><table id="sens">
+        <thead><tr><th>qty</th><th>winner</th><th>landed/unit</th></tr></thead>
+        <tbody id="sensRows"></tbody>
+      </table></div>
+    </div>
+
+    <div class="panel">
+      <h2>RFQ queue <span class="note">nothing sends without approval</span></h2>
+      <div class="body">
+        <div class="gate">Every email is reviewed before it reaches a supplier.
+          There is no code path that sends an unapproved draft.</div>
+        <div id="rfqs"><div class="empty">No drafts.</div></div>
+        <button id="draftBtn">Draft RFQs for unpriced suppliers</button>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="panel">
+      <h2>Ask <span class="note">supervisor · specialists · critic</span></h2>
+      <div id="trace"></div>
+      <div id="answer"><span class="empty">Ask a question about this request.</span></div>
+      <div class="ask">
+        <input id="q" placeholder="which supplier is cheapest landed?">
+        <button id="send" class="primary">Ask</button>
+      </div>
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Log a purchase <span class="note">one sentence</span></h2>
+      <div class="body">
+        <div class="ask" style="padding:0;border:0">
+          <input id="pur" placeholder="bought 56 FST100 from Firstrate, $41 FOB, 18 days">
+          <button id="purBtn">Log</button>
+        </div>
+        <div id="purOut" style="margin-top:10px;font-size:13px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const money = v => (v === null || v === undefined) ? '-' : '$' + Number(v).toFixed(2);
+
+// Where the backend lives. Empty string = same origin, which is what happens
+// when FastAPI serves this file locally. On Vercel, config.js sets it to the
+// VM's address.
+const API = (window.API_BASE || '').replace(/\/$/, '');
+const api = path => API + path;
+
+const SUGGESTIONS = [
+  'which supplier is cheapest landed?',
+  'what did we pay last time?',
+  'what output signal does it use?',
+  'why is the cheapest listing not the cheapest option?'
+];
+
+async function loadRequests(){
+  const rows = await (await fetch(api('/requests'))).json();
+  const sel = $('#req');
+  sel.innerHTML = rows.map(r =>
+    `<option value="${r.id}">#${r.id} ${r.mpn || r.title} — ${r.offers} offers</option>`
+  ).join('') || '<option value="">no requests</option>';
+  if (rows.length) { sel.value = rows[0].id; if (rows[0].quantity) $('#qty').value = rows[0].quantity; }
+}
+
+async function loadTable(){
+  const id = $('#req').value, qty = $('#qty').value;
+  if (!id) return;
+  const t = await (await fetch(api(`/compare/${id}?qty=${qty}`))).json();
+  const body = $('#rows'); body.innerHTML = '';
+
+  t.priced.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    if (i === 0) tr.className = 'best';
+    tr.innerHTML = `
+      <td>${r.supplier}${r.flags.length ? r.flags.map(f=>`<span class="flag">! ${f}</span>`).join('') : ''}</td>
+      <td class="mono" style="font-size:11.5px">${r.source}</td>
+      <td class="num">${r.unit_price_original} ${r.currency_original}</td>
+      <td class="num">${money(r.unit_price_usd)}</td>
+      <td class="mono">${r.incoterm}${r.incoterm_assumed ? '?' : ''}</td>
+      <td class="num">${money(r.freight)}</td>
+      <td class="num">${money(r.duty + r.vat)}</td>
+      <td class="num"><b>${money(r.per_unit)}</b></td>
+      <td class="num">${r.uplift_pct}%</td>
+      <td class="num">${r.lead_days || '-'}</td>
+      <td><span class="st ${r.state}">${r.state}</span></td>`;
+    body.appendChild(tr);
+  });
+
+  t.unpriced.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r.supplier}</td><td class="mono" style="font-size:11.5px">${r.source}</td>
+      <td colspan="7" style="color:var(--mute)">no published price — needs an RFQ</td>
+      <td><span class="st ${r.state}">${r.state}</span></td>`;
+    body.appendChild(tr);
+  });
+
+  t.disqualified.forEach(r => {
+    const tr = document.createElement('tr'); tr.className = 'dq';
+    tr.innerHTML = `<td>${r.supplier}</td><td colspan="9">${r.reason || 'fails a mandatory spec'}</td>
+      <td><span class="st disqualified">disqualified</span></td>`;
+    body.appendChild(tr);
+  });
+
+  $('#tableNote').textContent = `qty ${t.quantity} · ${t.priced.length} priced · ${t.unpriced.length} unpriced`;
+
+  if (t.priced.length){
+    const best = t.priced[0];
+    const cheapListed = t.priced.reduce((a,b) => a.unit_price_usd <= b.unit_price_usd ? a : b);
+    let html = `Cheapest landed: <b>${best.supplier}</b> at ${money(best.per_unit)}/unit.`;
+    if (cheapListed.offer_id !== best.offer_id){
+      html += `<span class="invert">The lowest listed price is ${cheapListed.supplier}
+        at ${money(cheapListed.unit_price_usd)} — it lands higher. This is the inversion the table exists to catch.</span>`;
+    }
+    $('#headline').innerHTML = html;
+  } else { $('#headline').textContent = 'No priced offers yet.'; }
+
+  showBudget(id);
+
+  const sens = await (await fetch(api(`/sensitivity/${id}`))).json();
+  $('#sensRows').innerHTML = sens.map(s => `<tr>
+    <td class="num">${s.quantity}</td>
+    <td>${s.winner || '-'}${s.below_moq ? ' <span class="st needs_rfq">below moq</span>' : ''}</td>
+    <td class="num">${money(s.per_unit)}</td></tr>`).join('');
+
+  loadRfqs();
+}
+
+// ---- streaming chat ----
+async function ask(){
+  const question = $('#q').value.trim();
+  if (!question) return;
+  $('#send').disabled = true;
+  $('#trace').innerHTML = '';
+  $('#answer').innerHTML = '<span class="empty">working…</span>';
+
+  const res = await fetch(api('/chat'), {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({question, request_id:Number($('#req').value)||null, quantity:Number($('#qty').value)||null})
+  });
+
+  const reader = res.body.getReader(), dec = new TextDecoder();
+  let buf = '';
+  while (true){
+    const {done, value} = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, {stream:true});
+    const parts = buf.split('\n\n'); buf = parts.pop();
+    for (const part of parts){
+      const ev = (part.match(/^event: (.+)$/m) || [])[1];
+      const dataLine = (part.match(/^data: (.+)$/m) || [])[1];
+      if (!ev || !dataLine) continue;
+      const data = JSON.parse(dataLine);
+
+      if (ev === 'step'){
+        const d = document.createElement('div');
+        d.className = 's' + (/REVISE/.test(data.text) ? ' rev' : '')
+                          + (/approved/.test(data.text) ? ' ok' : '');
+        d.innerHTML = `<b>${data.node}</b> ${data.text.replace(/^[a-z_]+(:| ->) ?/,'')}`;
+        $('#trace').appendChild(d);
+        $('#trace').scrollTop = $('#trace').scrollHeight;
+      } else if (ev === 'answer'){
+        $('#answer').innerHTML = (data.answer || '(no answer)') +
+          `<span class="meta">${data.hops} hops · ${data.revisions} revisions · ${data.verdict}</span>`;
+      } else if (ev === 'error'){
+        $('#answer').innerHTML = `<span style="color:var(--alert)">${data.message}</span>`;
+      }
+    }
+  }
+  $('#send').disabled = false;
+}
+
+// ---- rfq ----
+async function loadRfqs(){
+  const id = $('#req').value;
+  const rows = await (await fetch(api(`/rfq/pending?request_id=${id}`))).json();
+  const box = $('#rfqs');
+  if (!rows.length){ box.innerHTML = '<div class="empty">No drafts awaiting review.</div>'; return; }
+  box.innerHTML = rows.map(r => `
+    <div class="rfq">
+      <div class="head">
+        <span class="who">${r.supplier || 'supplier'}</span>
+        <span class="ref">${r.ref_code}</span>
+        <span class="sp"></span>
+        <button class="tiny" onclick="approveRfq(${r.id})">Approve</button>
+        <button class="tiny" onclick="dropRfq(${r.id})">Drop</button>
+      </div>
+      <pre>${r.subject}\n\n${r.body}</pre>
+    </div>`).join('');
+}
+async function approveRfq(id){ await fetch(api(`/rfq/${id}/approve`), {method:'POST'}); loadRfqs(); }
+async function dropRfq(id){ await fetch(api(`/rfq/${id}/drop`), {method:'POST'}); loadRfqs(); }
+
+// ---- purchase ----
+async function logPurchase(){
+  const sentence = $('#pur').value.trim(); if (!sentence) return;
+  $('#purBtn').disabled = true;
+  $('#purOut').textContent = 'reading…';
+  const res = await fetch(api('/purchase/parse'), {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({sentence})
+  });
+  const d = await res.json();
+  $('#purOut').innerHTML = d.questions
+    ? `<pre style="margin:0;font-size:12px;white-space:pre-wrap">${d.questions}</pre>
+       <div class="ask" style="padding:8px 0 0;border:0">
+         <input id="purReply" placeholder="one line covering what you know">
+         <button onclick="savePurchase()">Save</button></div>`
+    : 'Complete — saving…';
+  if (!d.questions) savePurchase();
+  $('#purBtn').disabled = false;
+}
+async function savePurchase(){
+  const res = await fetch(api('/purchase/save'), {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({sentence: $('#pur').value.trim(), reply: ($('#purReply')||{}).value || null})
+  });
+  if (!res.ok){ $('#purOut').innerHTML = `<span style="color:var(--alert)">${(await res.json()).detail}</span>`; return; }
+  const d = await res.json();
+  $('#purOut').innerHTML = `Saved #${d.purchase_id}. Landed ${money(d.landed_per_unit)}/unit`
+    + (d.lead_days_actual ? `, ${d.lead_days_actual} days actual.` : '.');
+}
+
+// ---- intake ----
+function understoodHtml(u, budgetLine){
+  const bits = [];
+  if (u.part_number) bits.push(['part', u.part_number]);
+  if (u.description && !u.part_number) bits.push(['need', u.description]);
+  if (u.quantity) bits.push(['quantity', u.quantity]);
+  if (u.budget) bits.push(['budget', money(u.budget)]);
+  if (u.need_by) bits.push(['need by', u.need_by]);
+  if (u.mandatory_specs && u.mandatory_specs.length)
+    bits.push(['must have', u.mandatory_specs.join(', ')]);
+  return `<table style="min-width:0;font-size:13px">${bits.map(([k,v]) =>
+    `<tr><td class="mono" style="color:var(--faint);padding:3px 12px 3px 0;border:0">${k}</td>
+         <td style="padding:3px 0;border:0">${v}</td></tr>`).join('')}</table>` + (budgetLine || '');
+}
+
+async function startRequest(){
+  const text = $('#need').value.trim(); if (!text) return;
+  $('#needBtn').disabled = true;
+  $('#needOut').innerHTML = '<span class="empty">reading…</span>';
+
+  const answer = ($('#needAnswer') || {}).value || null;
+  const d = await (await fetch(api('/request/new'), {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({text, answer})
+  })).json();
+
+  if (!d.ready){
+    $('#needOut').innerHTML = understoodHtml(d.understood)
+      + `<div class="gate" style="margin:10px 0">${d.questions.map(q=>`• ${q}`).join('<br>')}</div>
+         <div class="ask" style="padding:0;border:0">
+           <input id="needAnswer" placeholder="answer, then Start again">
+           <button onclick="startRequest()">Continue</button></div>`;
+    $('#needBtn').disabled = false;
+    return;
+  }
+
+  const assumed = d.assumptions.length
+    ? `<div style="font-size:12px;color:var(--faint);margin-top:8px" class="mono">assumed: ${d.assumptions.join(' · ')}</div>` : '';
+  $('#needOut').innerHTML = `<div style="color:var(--ok);font-size:13px;margin-bottom:8px">
+      Created request #${d.request_id}.</div>` + understoodHtml(d) + assumed
+    + (d.searchable
+        ? `<div style="margin-top:10px"><button class="primary" onclick="runSearch(${d.request_id})">Search Google + Baidu</button>
+           <span class="mono" style="font-size:11.5px;color:var(--faint);margin-left:8px">uses search credits</span></div>`
+        : `<div class="gate" style="margin-top:10px">No part number, so there is nothing to search for.
+             Add one, or paste supplier pages with scripts/paste.py.</div>`);
+
+  await loadRequests();
+  $('#req').value = d.request_id;
+  if (d.quantity) $('#qty').value = d.quantity;
+  loadTable();
+  $('#needBtn').disabled = false;
+}
+
+async function runSearch(id){
+  $('#needOut').insertAdjacentHTML('beforeend',
+    '<div id="searching" class="mono" style="font-size:12px;color:var(--probe);margin-top:8px">searching…</div>');
+  const r = await (await fetch(api(`/request/${id}/search`), {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({max_pages:5})
+  })).json();
+  const el = $('#searching');
+  if (el) el.textContent = r.detail
+    ? r.detail
+    : `read ${r.candidates} pages · ${r.offers_saved} offers · ${r.failed.length} failed`;
+  $('#req').value = id; loadTable(); showBudget(id);
+}
+
+async function showBudget(id){
+  const qty = $('#qty').value;
+  const b = await (await fetch(api(`/request/${id}/budget?qty=${qty}`))).json();
+  if (b.state === 'no_budget' || b.state === 'no_request') return;
+
+  let html, colour;
+  if (b.state === 'not_yet_priced'){
+    colour = 'var(--signal)';
+    html = `Budget ${money(b.budget)} — not tested yet. `
+         + `${b.unpriced} supplier${b.unpriced === 1 ? '' : 's'} found with no published price. Send an RFQ.`;
+  } else {
+    colour = b.within_budget ? 'var(--ok)' : 'var(--alert)';
+    html = `Budget ${money(b.budget)} — cheapest total ${money(b.cheapest_total)} from ${b.supplier} at qty ${b.quantity}. `
+         + (b.within_budget ? `Within budget, ${money(b.headroom)} to spare.` : `Over by ${money(b.over_by)}.`);
+  }
+  $('#headline').insertAdjacentHTML('beforeend',
+    `<span class="invert" style="color:${colour}">${html}</span>`);
+}
+
+$('#need').addEventListener('keydown', e => { if (e.key === 'Enter') startRequest(); });
+$('#needBtn').onclick = startRequest;
+
+$('#chips').innerHTML = SUGGESTIONS.map(s => `<span class="chip">${s}</span>`).join('');
+$('#chips').onclick = e => { if (e.target.classList.contains('chip')){ $('#q').value = e.target.textContent; ask(); } };
+$('#send').onclick = ask;
+$('#q').addEventListener('keydown', e => { if (e.key === 'Enter') ask(); });
+$('#pur').addEventListener('keydown', e => { if (e.key === 'Enter') logPurchase(); });
+$('#purBtn').onclick = logPurchase;
+$('#reload').onclick = loadTable;
+$('#req').onchange = loadTable;
+$('#draftBtn').onclick = async () => {
+  $('#draftBtn').disabled = true;
+  await fetch(api(`/rfq/draft/${$('#req').value}`), {method:'POST'});
+  $('#draftBtn').disabled = false; loadRfqs();
+};
+
+loadRequests().then(loadTable);
+</script>
+</body>
+</html>

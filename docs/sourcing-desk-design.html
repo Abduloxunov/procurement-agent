@@ -1,0 +1,1079 @@
+<title>Sourcing Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+  :root{
+    --paper:#f4f7f7;
+    --surface:#ffffff;
+    --sunk:#eaeff0;
+    --ink:#0f191c;
+    --mute:#5b696d;
+    --faint:#7c8a8d;
+    --line:#d9e2e1;
+    --line-hard:#c2cfce;
+    --probe:#125b66;
+    --probe-soft:#e2f0f1;
+    --signal:#a9550c;
+    --signal-soft:#fbeedf;
+    --ok:#26654a;
+    --ok-soft:#e2f0e8;
+    --alert:#9c3527;
+    --alert-soft:#fbe9e6;
+    --code-bg:#0d181b;
+    --code-ink:#d6e3e3;
+    --code-dim:#7f9295;
+    --code-key:#7cc2cd;
+    --code-str:#c9a06a;
+    --shadow:0 1px 2px rgba(15,25,28,.05),0 6px 18px -12px rgba(15,25,28,.28);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0c1416;
+      --surface:#121e21;
+      --sunk:#0a1214;
+      --ink:#e2eaea;
+      --mute:#96a5a7;
+      --faint:#7e8d90;
+      --line:#243336;
+      --line-hard:#334446;
+      --probe:#59b8c4;
+      --probe-soft:#10292d;
+      --signal:#dd9146;
+      --signal-soft:#2a1f13;
+      --ok:#5fba8c;
+      --ok-soft:#122620;
+      --alert:#e08170;
+      --alert-soft:#2a1815;
+      --code-bg:#08100f;
+      --code-ink:#d6e3e3;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px -12px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0c1416;
+    --surface:#121e21;
+    --sunk:#0a1214;
+    --ink:#e2eaea;
+    --mute:#96a5a7;
+    --faint:#7e8d90;
+    --line:#243336;
+    --line-hard:#334446;
+    --probe:#59b8c4;
+    --probe-soft:#10292d;
+    --signal:#dd9146;
+    --signal-soft:#2a1f13;
+    --ok:#5fba8c;
+    --ok-soft:#122620;
+    --alert:#e08170;
+    --alert-soft:#2a1815;
+    --code-bg:#08100f;
+    --code-ink:#d6e3e3;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px -12px rgba(0,0,0,.7);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    font-size:16px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .masthead{border-bottom:1px solid var(--line);background:var(--surface)}
+  .masthead-in{
+    max-width:1180px;margin:0 auto;padding:52px 32px 40px;
+    display:flex;flex-direction:column;gap:18px;
+  }
+  .eyebrow{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--probe);margin:0;
+  }
+  h1{
+    font-family:Archivo,"IBM Plex Sans",sans-serif;font-weight:700;
+    font-size:clamp(34px,5.5vw,56px);line-height:1.02;letter-spacing:-.022em;
+    margin:0;text-wrap:balance;
+  }
+  .lede{margin:0;max-width:62ch;font-size:18px;color:var(--mute)}
+  .lede b{color:var(--ink);font-weight:600}
+  .facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+  .fact{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;
+    border:1px solid var(--line-hard);border-radius:3px;padding:5px 10px;
+    color:var(--mute);background:var(--sunk);
+  }
+  .fact b{color:var(--ink);font-weight:500}
+
+  .shell{max-width:1180px;margin:0 auto;padding:0 32px 96px;display:block}
+  @media (min-width:1040px){
+    .shell{display:grid;grid-template-columns:206px 1fr;gap:56px;align-items:start}
+  }
+
+  .rail{display:none}
+  @media (min-width:1040px){
+    .rail{display:block;position:sticky;top:0;padding-top:44px;max-height:100vh;overflow-y:auto}
+  }
+  .rail h2{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;
+    letter-spacing:.15em;text-transform:uppercase;color:var(--faint);
+    margin:0 0 12px;font-weight:500;
+  }
+  .rail ol{list-style:none;margin:0;padding:0;border-left:1px solid var(--line-hard)}
+  .rail a{
+    display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:baseline;
+    padding:5px 0 5px 12px;margin-left:-1px;border-left:2px solid transparent;
+    text-decoration:none;color:var(--mute);font-size:13px;line-height:1.4;
+  }
+  .rail a span.n{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;color:var(--faint)}
+  .rail a:hover{color:var(--ink)}
+  .rail a.on{border-left-color:var(--signal);color:var(--ink);font-weight:500}
+  .rail a.on span.n{color:var(--signal)}
+  .rail a:focus-visible{outline:2px solid var(--probe);outline-offset:2px;border-radius:2px}
+
+  main{padding-top:44px;min-width:0}
+  section{margin-bottom:56px;scroll-margin-top:24px}
+  section > *{max-width:70ch}
+  section > figure,section > .tablewrap,section > .gridcards,section > .stage,section > pre{max-width:none}
+
+  h2.sec{
+    font-family:Archivo,sans-serif;font-weight:700;
+    font-size:clamp(21px,2.6vw,27px);letter-spacing:-.014em;line-height:1.18;
+    margin:0 0 6px;text-wrap:balance;
+    display:flex;align-items:baseline;gap:11px;
+  }
+  h2.sec .n{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;font-weight:400;
+    color:var(--signal);letter-spacing:.04em;flex:none;
+  }
+  h3{
+    font-family:Archivo,sans-serif;font-weight:600;font-size:16.5px;
+    letter-spacing:-.005em;margin:26px 0 6px;color:var(--ink);
+  }
+  .sub{color:var(--mute);margin:0 0 18px;font-size:15px}
+  p{margin:0 0 14px}
+  ul,ol{margin:0 0 14px;padding-left:22px}
+  li{margin-bottom:6px}
+  a{color:var(--probe);text-underline-offset:2px}
+  hr.rule{border:0;border-top:1px solid var(--line);margin:0 0 22px;max-width:none}
+
+  code{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.875em;
+    background:var(--sunk);border:1px solid var(--line);border-radius:3px;
+    padding:1px 5px;color:var(--ink);
+  }
+  pre{
+    background:var(--code-bg);color:var(--code-ink);border-radius:5px;
+    padding:16px 18px;overflow-x:auto;margin:0 0 16px;
+    font-size:12.5px;line-height:1.62;
+  }
+  pre code{background:none;border:0;padding:0;color:inherit;font-size:inherit}
+  pre .c{color:var(--code-dim)}
+  pre .k{color:var(--code-key)}
+  pre .s{color:var(--code-str)}
+
+  .chip{
+    display:inline-block;font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+    padding:2px 7px;border-radius:3px;border:1px solid;vertical-align:2px;font-weight:500;
+  }
+  .chip.mvp{color:var(--ok);border-color:var(--ok);background:var(--ok-soft)}
+  .chip.next{color:var(--probe);border-color:var(--probe);background:var(--probe-soft)}
+  .chip.open{color:var(--signal);border-color:var(--signal);background:var(--signal-soft)}
+
+  .stage{
+    background:var(--surface);border:1px solid var(--line);border-radius:6px;
+    padding:18px 20px;margin:0 0 12px;box-shadow:var(--shadow);
+  }
+  .stage-head{display:flex;align-items:baseline;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+  .stage-head .sn{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;font-weight:500;
+    color:var(--surface);background:var(--probe);border-radius:3px;
+    padding:2px 7px;flex:none;
+  }
+  .stage-head h4{
+    font-family:Archivo,sans-serif;font-weight:600;font-size:16px;margin:0;
+    letter-spacing:-.005em;
+  }
+  .stage p{margin:0 0 8px;font-size:15px;max-width:68ch}
+  .stage p:last-child{margin-bottom:0}
+  .meta{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;
+    color:var(--mute);display:flex;flex-wrap:wrap;gap:6px 16px;
+    padding-top:10px;margin-top:10px;border-top:1px solid var(--line);
+  }
+  .meta b{color:var(--faint);font-weight:400;letter-spacing:.06em;text-transform:uppercase;font-size:10px}
+
+  .call{
+    border-left:2px solid;border-radius:0 5px 5px 0;padding:13px 16px;margin:0 0 16px;
+    font-size:14.5px;max-width:70ch;
+  }
+  .call p{margin:0 0 8px}
+  .call p:last-child{margin:0}
+  .call .lbl{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;
+    letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:5px;font-weight:500;
+  }
+  .call.key{border-color:var(--probe);background:var(--probe-soft)}
+  .call.key .lbl{color:var(--probe)}
+  .call.gate{border-color:var(--signal);background:var(--signal-soft)}
+  .call.gate .lbl{color:var(--signal)}
+  .call.risk{border-color:var(--alert);background:var(--alert-soft)}
+  .call.risk .lbl{color:var(--alert)}
+
+  .tablewrap{overflow-x:auto;margin:0 0 18px;border:1px solid var(--line);border-radius:5px;background:var(--surface)}
+  table{border-collapse:collapse;width:100%;font-size:14px;min-width:520px}
+  th,td{padding:9px 13px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+  tbody tr:last-child td{border-bottom:0}
+  th{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:500;
+    background:var(--sunk);white-space:nowrap;
+  }
+  td.num{text-align:right;font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+  tr.total td{font-weight:600;background:var(--sunk)}
+  td .mono,td.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px}
+  .st{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.08em;
+    text-transform:uppercase;padding:1px 6px;border-radius:3px;border:1px solid;white-space:nowrap;
+  }
+  .st.v{color:var(--ok);border-color:var(--ok);background:var(--ok-soft)}
+  .st.l{color:var(--probe);border-color:var(--probe);background:var(--probe-soft)}
+  .st.r{color:var(--signal);border-color:var(--signal);background:var(--signal-soft)}
+  .st.x{color:var(--alert);border-color:var(--alert);background:var(--alert-soft)}
+
+  figure{
+    margin:0 0 20px;background:var(--surface);border:1px solid var(--line);
+    border-radius:6px;padding:20px;overflow-x:auto;box-shadow:var(--shadow);
+  }
+  figure svg{display:block;width:100%;height:auto;min-width:600px}
+  figcaption{
+    font-size:13px;color:var(--mute);margin-top:14px;padding-top:12px;
+    border-top:1px solid var(--line);max-width:70ch;
+  }
+
+  .gridcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:12px;margin:0 0 18px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:14px 16px}
+  .card h4{font-family:Archivo,sans-serif;font-weight:600;font-size:14.5px;margin:0 0 5px}
+  .card p{margin:0;font-size:13.5px;color:var(--mute)}
+  .card .tag{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--faint);display:block;margin-bottom:6px;
+  }
+
+  .dlg{
+    background:var(--surface);border:1px solid var(--line);border-radius:6px;
+    padding:16px 18px;margin:0 0 16px;font-size:14.5px;max-width:70ch;
+  }
+  .dlg .turn{display:grid;grid-template-columns:52px 1fr;gap:12px;margin-bottom:10px}
+  .dlg .turn:last-child{margin-bottom:0}
+  .dlg .who{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--faint);padding-top:4px;
+  }
+  .dlg .turn.a .who{color:var(--probe)}
+  .dlg .said{margin:0}
+  .dlg .turn.a .said{color:var(--ink)}
+  .dlg .turn.u .said{color:var(--mute)}
+
+  ol.qs{list-style:none;padding:0;counter-reset:q}
+  ol.qs li{counter-increment:q;position:relative;padding-left:32px;margin-bottom:12px;max-width:68ch}
+  ol.qs li::before{
+    content:"Q" counter(q);position:absolute;left:0;top:1px;
+    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;
+    color:var(--signal);font-weight:500;
+  }
+
+  footer{border-top:1px solid var(--line);background:var(--surface)}
+  .footer-in{
+    max-width:1180px;margin:0 auto;padding:26px 32px 40px;
+    font-size:13px;color:var(--mute);
+    display:flex;flex-wrap:wrap;gap:6px 28px;
+    font-family:"IBM Plex Mono",ui-monospace,monospace;
+  }
+
+  @media (max-width:640px){
+    .masthead-in{padding:36px 20px 30px}
+    .shell{padding:0 20px 64px}
+    body{font-size:15.5px}
+    .dlg .turn{grid-template-columns:1fr;gap:2px}
+  }
+</style>
+
+<header class="masthead">
+  <div class="masthead-in">
+    <p class="eyebrow">Design document · living draft · v1.1</p>
+    <h1>Sourcing Desk</h1>
+    <p class="lede">Give it a part — <b>FST100-2006A, 50 units</b> — and it searches the web the way a good sourcing engineer would, pulls real supplier data, and hands back one table with landed cost, lead time and specification match already worked out.</p>
+    <div class="facts">
+      <span class="fact">User <b>procurement engineer</b></span>
+      <span class="fact">Import <b>China → Tashkent</b></span>
+      <span class="fact">Search <b>Google + Baidu</b></span>
+      <span class="fact">Model <b>gemini-2.5-flash-lite only</b></span>
+      <span class="fact">Currency <b>USD throughout</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+
+  <nav class="rail" aria-label="Contents">
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#job"><span class="n">01</span><span>The job</span></a></li>
+      <li><a href="#what"><span class="n">02</span><span>What it does</span></a></li>
+      <li><a href="#overview"><span class="n">03</span><span>System overview</span></a></li>
+      <li><a href="#discovery"><span class="n">04</span><span>Search strategy</span></a></li>
+      <li><a href="#acquire"><span class="n">05</span><span>Getting the data</span></a></li>
+      <li><a href="#table"><span class="n">06</span><span>The table</span></a></li>
+      <li><a href="#landed"><span class="n">07</span><span>Landed cost</span></a></li>
+      <li><a href="#equiv"><span class="n">08</span><span>Equivalence</span></a></li>
+      <li><a href="#clarify"><span class="n">09</span><span>Follow-up questions</span></a></li>
+      <li><a href="#memory"><span class="n">10</span><span>Purchase log</span></a></li>
+      <li><a href="#rfq"><span class="n">11</span><span>RFQ email</span></a></li>
+      <li><a href="#data"><span class="n">12</span><span>Data model</span></a></li>
+      <li><a href="#stack"><span class="n">13</span><span>Stack</span></a></li>
+      <li><a href="#rubric"><span class="n">14</span><span>Course coverage</span></a></li>
+      <li><a href="#build"><span class="n">15</span><span>Build order</span></a></li>
+      <li><a href="#open"><span class="n">16</span><span>Risks &amp; open</span></a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+    <section id="job">
+      <h2 class="sec"><span class="n">01</span>The job we are automating</h2>
+      <hr class="rule">
+      <p>An engineer is handed a requirement — sometimes a manufacturer part number, sometimes a description of what the thing must do. He has to come back with a price, a lead time, and a recommendation he can defend.</p>
+      <p>What that costs him today, per part:</p>
+      <ul>
+        <li>Work out what the part actually is and pull its real specifications out of a datasheet PDF.</li>
+        <li>Search — in two languages, across marketplaces, manufacturer sites and distributors — for anyone who sells it.</li>
+        <li>Open thirty tabs. Read prices that are quoted at different quantities, in different currencies, under different incoterms.</li>
+        <li>Convert, reconcile, add freight and duty and VAT, and discover the cheapest quote was not the cheapest option.</li>
+        <li>Email the suppliers who did not publish a price at all, then wait and chase.</li>
+        <li>Do it again next month, having forgotten what he paid last time and which supplier delivered late.</li>
+      </ul>
+      <p>Hours per part, and almost none of it is judgement. It is the kind of work that quietly gets skipped under deadline, which is how a company ends up paying well over the market rate for a sensor.</p>
+    </section>
+
+    <section id="what">
+      <h2 class="sec"><span class="n">02</span>What it does</h2>
+      <hr class="rule">
+      <p>One sentence: <b>it researches a part across the web and returns a decision-ready comparison table.</b></p>
+      <p>The system is a research agent, not a chatbot and not a mail client. Its output is a structured table of real options — who sells it, at what price, at what quantity, landed in Tashkent, arriving when, matching which specifications, from a supplier we have or have not dealt with before. Then it answers follow-up questions about that table, and asks its own when the request is ambiguous.</p>
+
+      <div class="gridcards">
+        <div class="card">
+          <span class="tag">Core loop</span>
+          <h4>Research &amp; compare</h4>
+          <p>Search wide, extract real supplier data, normalise it, cost it, rank it. This is the product and everything else serves it.</p>
+        </div>
+        <div class="card">
+          <span class="tag">Supporting</span>
+          <h4>Remember</h4>
+          <p>He tells it what he bought and how it went, in one sentence. That history sharpens every future comparison.</p>
+        </div>
+        <div class="card">
+          <span class="tag">Fallback</span>
+          <h4>Ask suppliers</h4>
+          <p>When the web has no usable price, draft an RFQ email. A tool the agent reaches for — not the centre of the system.</p>
+        </div>
+      </div>
+
+      <div class="call key">
+        <span class="lbl">Design correction from v0.1</span>
+        <p>The first draft built the whole system around the RFQ email loop. That was the most novel piece, not the most useful one. Web research is where the time actually goes, so web research is the centre. Email is a fallback for the minority of suppliers who publish nothing.</p>
+      </div>
+    </section>
+
+    <section id="overview">
+      <h2 class="sec"><span class="n">03</span>System overview</h2>
+      <hr class="rule">
+      <p>Four layers. A sourcing request is a persistent object rather than a chat turn — it can sit half-finished while a supplier is chased, so the graph is checkpointed.</p>
+
+      <figure>
+        <svg viewBox="0 0 880 388" role="img" aria-labelledby="ovtitle" font-family="IBM Plex Sans, Segoe UI, Arial" font-size="12.5">
+          <title id="ovtitle">Four-layer architecture: interface, orchestration, agents, data</title>
+          <defs>
+            <marker id="ar" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto">
+              <path d="M0 0 L6 3 L0 6 z" fill="var(--faint)"/>
+            </marker>
+            <marker id="arb" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto-start-reverse">
+              <path d="M0 0 L6 3 L0 6 z" fill="var(--faint)"/>
+            </marker>
+          </defs>
+
+          <text x="16" y="18" fill="var(--faint)" font-size="10" letter-spacing="1.6" font-family="IBM Plex Mono, monospace">INTERFACE</text>
+          <rect x="16" y="26" width="270" height="42" rx="4" fill="var(--probe-soft)" stroke="var(--probe)"/>
+          <text x="151" y="52" text-anchor="middle" fill="var(--probe)" font-weight="700">Comparison table</text>
+          <rect x="298" y="26" width="200" height="42" rx="4" fill="var(--surface)" stroke="var(--line-hard)"/>
+          <text x="398" y="52" text-anchor="middle" fill="var(--ink)" font-weight="600">Chat</text>
+          <rect x="510" y="26" width="164" height="42" rx="4" fill="var(--surface)" stroke="var(--line-hard)"/>
+          <text x="592" y="52" text-anchor="middle" fill="var(--ink)" font-weight="600">Purchase log</text>
+          <rect x="686" y="26" width="178" height="42" rx="4" fill="var(--signal-soft)" stroke="var(--signal)"/>
+          <text x="775" y="52" text-anchor="middle" fill="var(--signal)" font-weight="600">Approvals</text>
+
+          <line x1="200" y1="76" x2="200" y2="106" stroke="var(--faint)" marker-end="url(#ar)" marker-start="url(#arb)"/>
+
+          <text x="16" y="102" fill="var(--faint)" font-size="10" letter-spacing="1.6" font-family="IBM Plex Mono, monospace">ORCHESTRATION &#183; LANGGRAPH</text>
+          <rect x="16" y="112" width="848" height="62" rx="4" fill="var(--sunk)" stroke="var(--line-hard)"/>
+          <rect x="30" y="124" width="160" height="38" rx="3" fill="var(--surface)" stroke="var(--line-hard)"/>
+          <text x="110" y="147" text-anchor="middle" fill="var(--ink)" font-weight="600">Supervisor</text>
+          <rect x="202" y="124" width="180" height="38" rx="3" fill="var(--surface)" stroke="var(--signal)"/>
+          <text x="292" y="147" text-anchor="middle" fill="var(--signal)" font-weight="600">Clarify</text>
+          <rect x="394" y="124" width="220" height="38" rx="3" fill="var(--surface)" stroke="var(--probe)"/>
+          <text x="504" y="147" text-anchor="middle" fill="var(--probe)" font-weight="600">Research pipeline</text>
+          <rect x="626" y="124" width="112" height="38" rx="3" fill="var(--surface)" stroke="var(--line-hard)"/>
+          <text x="682" y="147" text-anchor="middle" fill="var(--ink)" font-weight="600">Critic</text>
+          <rect x="750" y="124" width="100" height="38" rx="3" fill="var(--surface)" stroke="var(--line-hard)"/>
+          <text x="800" y="147" text-anchor="middle" fill="var(--ink)" font-weight="600" font-size="11.5">Checkpoint</text>
+
+          <line x1="200" y1="182" x2="200" y2="216" stroke="var(--faint)" marker-end="url(#ar)" marker-start="url(#arb)"/>
+          <text x="212" y="203" fill="var(--mute)" font-size="11">delegate &#8595; results &#8593;</text>
+
+          <text x="16" y="212" fill="var(--faint)" font-size="10" letter-spacing="1.6" font-family="IBM Plex Mono, monospace">AGENTS</text>
+          <rect x="16" y="222" width="160" height="44" rx="4" fill="var(--surface)" stroke="var(--line-hard)"/>
+          <text x="96" y="240" text-anchor="middle" fill="var(--ink)" font-weight="600" font-size="12">Part</text>
+          <text x="96" y="256" text-anchor="middle" fill="var(--mute)" font-size="10.5">datasheet RAG</text>
+          <rect x="188" y="222" width="160" height="44" rx="4" fill="var(--probe-soft)" stroke="var(--probe)" stroke-width="1.5"/>
+          <text x="268" y="240" text-anchor="middle" fill="var(--probe)" font-weight="700" font-size="12">Scout</text>
+          <text x="268" y="256" text-anchor="middle" fill="var(--probe)" font-size="10.5">search + scrape</text>
+          <rect x="360" y="222" width="160" height="44" rx="4" fill="var(--surface)" stroke="var(--line-hard)"/>
+          <text x="440" y="240" text-anchor="middle" fill="var(--ink)" font-weight="600" font-size="12">History</text>
+          <text x="440" y="256" text-anchor="middle" fill="var(--mute)" font-size="10.5">text-to-SQL</text>
+          <rect x="532" y="222" width="160" height="44" rx="4" fill="var(--surface)" stroke="var(--line-hard)"/>
+          <text x="612" y="240" text-anchor="middle" fill="var(--ink)" font-weight="600" font-size="12">Analyst</text>
+          <text x="612" y="256" text-anchor="middle" fill="var(--mute)" font-size="10.5">runs Python</text>
+          <rect x="704" y="222" width="160" height="44" rx="4" fill="var(--surface)" stroke="var(--line-hard)"/>
+          <text x="784" y="240" text-anchor="middle" fill="var(--ink)" font-weight="600" font-size="12">RFQ</text>
+          <text x="784" y="256" text-anchor="middle" fill="var(--mute)" font-size="10.5">email, fallback</text>
+
+          <line x1="200" y1="274" x2="200" y2="306" stroke="var(--faint)" marker-end="url(#ar)" marker-start="url(#arb)"/>
+
+          <text x="16" y="302" fill="var(--faint)" font-size="10" letter-spacing="1.6" font-family="IBM Plex Mono, monospace">DATA</text>
+          <rect x="16" y="312" width="202" height="44" rx="4" fill="var(--surface)" stroke="var(--line)"/>
+          <text x="117" y="331" text-anchor="middle" fill="var(--ink)" font-size="12" font-weight="500">Qdrant</text>
+          <text x="117" y="346" text-anchor="middle" fill="var(--mute)" font-size="10.5">datasheets, memos</text>
+          <rect x="230" y="312" width="202" height="44" rx="4" fill="var(--surface)" stroke="var(--line)"/>
+          <text x="331" y="331" text-anchor="middle" fill="var(--ink)" font-size="12" font-weight="500">SQLite</text>
+          <text x="331" y="346" text-anchor="middle" fill="var(--mute)" font-size="10.5">offers, purchases</text>
+          <rect x="444" y="312" width="202" height="44" rx="4" fill="var(--surface)" stroke="var(--line)"/>
+          <text x="545" y="331" text-anchor="middle" fill="var(--ink)" font-size="12" font-weight="500">Source registry</text>
+          <text x="545" y="346" text-anchor="middle" fill="var(--mute)" font-size="10.5">weights, not filters</text>
+          <rect x="658" y="312" width="206" height="44" rx="4" fill="var(--surface)" stroke="var(--line)"/>
+          <text x="761" y="331" text-anchor="middle" fill="var(--ink)" font-size="12" font-weight="500">Fetch layer</text>
+          <text x="761" y="346" text-anchor="middle" fill="var(--mute)" font-size="10.5">SERP · browser · mail</text>
+
+          <text x="440" y="380" text-anchor="middle" fill="var(--faint)" font-size="11">Scout is the load-bearing agent. Everything else refines what it finds.</text>
+        </svg>
+        <figcaption>Clarify sits beside the pipeline rather than inside it — the graph can interrupt and ask the user a question from any stage, then resume where it stopped.</figcaption>
+      </figure>
+    </section>
+
+    <section id="discovery">
+      <h2 class="sec"><span class="n">04</span>Search strategy</h2>
+      <hr class="rule">
+      <p>Search everywhere. Weight what he trusts. Both halves matter — scoping search to a fixed list of favourites means never discovering a better supplier, and searching wide without weighting drowns real suppliers in marketing pages.</p>
+
+      <h3>Two engines, because they see different webs</h3>
+      <p>Google indexes the English-language supplier web. <b>Baidu indexes the Chinese industrial web</b> — manufacturers' own sites, Made-in-China listings, regional trading companies — much of which Google systematically under-surfaces. For a buyer sourcing Chinese sensors, running only Google means missing the actual manufacturer and buying from a reseller two steps down the chain.</p>
+      <p>So every part query runs against both, plus direct site search on the marketplaces themselves. Queries are issued in English and, for Baidu, translated — the part number is usually the strongest search key and travels across both.</p>
+
+      <h3>Preference is a weight, not a filter</h3>
+      <pre><code><span class="c"># every candidate result is scored, none are excluded</span>
+score = relevance * source_weight * freshness
+
+source_weight:
+  favourite marketplace   1.5    <span class="c"># his usual haunts, ranked up</span>
+  known manufacturer      1.4    <span class="c"># buying at the source</span>
+  bought from before      1.3    <span class="c"># proven, from the purchase log</span>
+  unknown                 1.0    <span class="c"># still shown, just lower</span>
+  known bad / reseller    0.4    <span class="c"># demoted, not hidden</span></code></pre>
+      <p>A source that keeps producing good results climbs. A new supplier that turns out well gets promoted to a favourite the first time he logs a purchase from them — the registry learns instead of being maintained by hand.</p>
+
+      <h3>Starting registry</h3>
+      <p>Seeded with what he already uses, and it grows from there:</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Entry</th><th>Kind</th><th>Weight</th><th>Role</th></tr></thead>
+          <tbody>
+            <tr><td>Google</td><td class="mono">engine</td><td class="num">1.0</td><td>English supplier web</td></tr>
+            <tr><td>Baidu</td><td class="mono">engine</td><td class="num">1.0</td><td>Chinese industrial web</td></tr>
+            <tr><td>Alibaba.com</td><td class="mono">marketplace</td><td class="num">1.5</td><td>Favourite &mdash; broad supplier pool</td></tr>
+            <tr><td>Made-in-China</td><td class="mono">marketplace</td><td class="num">1.5</td><td>Favourite &mdash; cleanest structured data</td></tr>
+            <tr><td>Manufacturer sites</td><td class="mono">manufacturer</td><td class="num">1.4</td><td>Buying at the source, found via search</td></tr>
+            <tr><td>Anything else discovered</td><td class="mono">unknown</td><td class="num">1.0</td><td>Shown, ranked below favourites</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>No entry is hand-maintained after seeding. A supplier he logs a purchase from is promoted automatically; a source that repeatedly yields nothing usable drifts down. He can add a local distributor or a new marketplace at any time and it takes effect on the next search.</p>
+    </section>
+
+    <section id="acquire">
+      <h2 class="sec"><span class="n">05</span>Getting the data</h2>
+      <hr class="rule">
+      <p>Discovery finds pages. Extraction turns them into offers. This is the part that decides whether the product works, so it is built as a ladder — each rung is tried, and failure falls through to the next.</p>
+
+      <figure>
+        <svg viewBox="0 0 880 412" role="img" aria-labelledby="fntitle" font-family="IBM Plex Sans, Segoe UI, Arial" font-size="12">
+          <title id="fntitle">Discovery and extraction funnel from query to comparison table</title>
+          <defs>
+            <marker id="ar2" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto">
+              <path d="M0 0 L6 3 L0 6 z" fill="var(--faint)"/>
+            </marker>
+          </defs>
+
+          <rect x="340" y="14" width="200" height="38" rx="4" fill="var(--surface)" stroke="var(--line-hard)"/>
+          <text x="440" y="38" text-anchor="middle" fill="var(--ink)" font-weight="600">Part + quantity</text>
+
+          <line x1="420" y1="52" x2="140" y2="72" stroke="var(--faint)" marker-end="url(#ar2)"/>
+          <line x1="432" y1="52" x2="335" y2="72" stroke="var(--faint)" marker-end="url(#ar2)"/>
+          <line x1="448" y1="52" x2="545" y2="72" stroke="var(--faint)" marker-end="url(#ar2)"/>
+          <line x1="460" y1="52" x2="740" y2="72" stroke="var(--faint)" marker-end="url(#ar2)"/>
+
+          <rect x="16" y="76" width="201" height="46" rx="4" fill="var(--surface)" stroke="var(--line-hard)"/>
+          <text x="116" y="95" text-anchor="middle" fill="var(--ink)" font-weight="600" font-size="12">Google</text>
+          <text x="116" y="111" text-anchor="middle" fill="var(--mute)" font-size="10.5">English supplier web</text>
+          <rect x="231" y="76" width="201" height="46" rx="4" fill="var(--probe-soft)" stroke="var(--probe)"/>
+          <text x="331" y="95" text-anchor="middle" fill="var(--probe)" font-weight="700" font-size="12">Baidu</text>
+          <text x="331" y="111" text-anchor="middle" fill="var(--probe)" font-size="10.5">Chinese industrial web</text>
+          <rect x="446" y="76" width="201" height="46" rx="4" fill="var(--surface)" stroke="var(--line-hard)"/>
+          <text x="546" y="95" text-anchor="middle" fill="var(--ink)" font-weight="600" font-size="12">Marketplace search</text>
+          <text x="546" y="111" text-anchor="middle" fill="var(--mute)" font-size="10.5">on-site queries</text>
+          <rect x="661" y="76" width="203" height="46" rx="4" fill="var(--surface)" stroke="var(--line-hard)"/>
+          <text x="762" y="95" text-anchor="middle" fill="var(--ink)" font-weight="600" font-size="12">Registry favourites</text>
+          <text x="762" y="111" text-anchor="middle" fill="var(--mute)" font-size="10.5">checked directly</text>
+
+          <line x1="116" y1="122" x2="290" y2="146" stroke="var(--faint)" marker-end="url(#ar2)"/>
+          <line x1="331" y1="122" x2="392" y2="146" stroke="var(--faint)" marker-end="url(#ar2)"/>
+          <line x1="546" y1="122" x2="488" y2="146" stroke="var(--faint)" marker-end="url(#ar2)"/>
+          <line x1="762" y1="122" x2="590" y2="146" stroke="var(--faint)" marker-end="url(#ar2)"/>
+
+          <rect x="140" y="148" width="600" height="44" rx="4" fill="var(--sunk)" stroke="var(--line-hard)"/>
+          <text x="440" y="166" text-anchor="middle" fill="var(--ink)" font-weight="600">Candidate pages, ranked</text>
+          <text x="440" y="182" text-anchor="middle" fill="var(--mute)" font-size="10.5">relevance &#215; source weight &#215; freshness &#8212; nothing excluded</text>
+
+          <line x1="400" y1="192" x2="235" y2="212" stroke="var(--faint)" marker-end="url(#ar2)"/>
+          <line x1="440" y1="192" x2="440" y2="212" stroke="var(--faint)" marker-end="url(#ar2)"/>
+          <line x1="480" y1="192" x2="645" y2="212" stroke="var(--faint)" marker-end="url(#ar2)"/>
+
+          <rect x="140" y="214" width="190" height="52" rx="4" fill="var(--surface)" stroke="var(--ok)"/>
+          <text x="235" y="234" text-anchor="middle" fill="var(--ok)" font-weight="600" font-size="11.5">Direct fetch</text>
+          <text x="235" y="250" text-anchor="middle" fill="var(--mute)" font-size="10">manufacturers, distributors</text>
+          <rect x="345" y="214" width="190" height="52" rx="4" fill="var(--surface)" stroke="var(--signal)"/>
+          <text x="440" y="234" text-anchor="middle" fill="var(--signal)" font-weight="600" font-size="11.5">Headless browser</text>
+          <text x="440" y="250" text-anchor="middle" fill="var(--mute)" font-size="10">Alibaba, Made-in-China</text>
+          <rect x="550" y="214" width="190" height="52" rx="4" fill="var(--surface)" stroke="var(--alert)"/>
+          <text x="645" y="234" text-anchor="middle" fill="var(--alert)" font-weight="600" font-size="11.5">He pastes it</text>
+          <text x="645" y="250" text-anchor="middle" fill="var(--mute)" font-size="10">blocked or login-walled</text>
+
+          <line x1="235" y1="266" x2="410" y2="288" stroke="var(--faint)" marker-end="url(#ar2)"/>
+          <line x1="440" y1="266" x2="440" y2="288" stroke="var(--faint)" marker-end="url(#ar2)"/>
+          <line x1="645" y1="266" x2="470" y2="288" stroke="var(--faint)" marker-end="url(#ar2)"/>
+
+          <rect x="240" y="290" width="400" height="46" rx="4" fill="var(--surface)" stroke="var(--line-hard)"/>
+          <text x="440" y="309" text-anchor="middle" fill="var(--ink)" font-weight="600">Extract to structured offers</text>
+          <text x="440" y="325" text-anchor="middle" fill="var(--mute)" font-size="10.5">price &#183; MOQ &#183; tiers &#183; incoterm &#183; lead time &#183; specs &#183; confidence</text>
+
+          <line x1="440" y1="336" x2="440" y2="356" stroke="var(--faint)" marker-end="url(#ar2)"/>
+
+          <rect x="200" y="358" width="480" height="44" rx="4" fill="var(--probe-soft)" stroke="var(--probe)"/>
+          <text x="440" y="377" text-anchor="middle" fill="var(--probe)" font-weight="700">Comparison table</text>
+          <text x="440" y="393" text-anchor="middle" fill="var(--probe)" font-size="10.5">enriched with landed cost and our own purchase history</text>
+        </svg>
+        <figcaption>Three extraction rungs, colour-coded by reliability. Anything that falls off the bottom becomes an RFQ email instead — the fallback in §11.</figcaption>
+      </figure>
+
+      <h3>What each rung actually costs us</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Target</th><th>Method</th><th>Honest assessment</th></tr></thead>
+          <tbody>
+            <tr><td>Manufacturer &amp; distributor sites</td><td class="mono">fetch + LLM extract</td><td>Easy and reliable. Most of our good data comes from here.</td></tr>
+            <tr><td>Made-in-China</td><td class="mono">mobile JSON endpoint</td><td>Structured data without HTML parsing. Best value per hour spent.</td></tr>
+            <tr><td>Alibaba.com</td><td class="mono">Playwright + stealth</td><td>Moderate anti-bot. Works with fingerprint patches and pacing. Expect to maintain it.</td></tr>
+            <tr><td>Search results</td><td class="mono">SerpApi</td><td>Google and Baidu through one API, 250 searches/month free. Brave API as a backup index.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Chinese pages are translated, not skipped</h3>
+      <p>Baidu returns Chinese-language results, and the good ones — manufacturers' own product pages, trading company listings — are entirely in Chinese. We follow them and extract from them directly rather than only chasing results that happen to have an English version.</p>
+      <p>Mechanically this costs almost nothing: the extraction model reads Chinese natively, so it pulls price, MOQ, lead time and specifications straight from the Chinese page and emits an English structured offer. What it does add is a display obligation — every row keeps its original page title and URL alongside the translated fields, so he can open the source and see what the agent actually read.</p>
+      <div class="call risk">
+        <span class="lbl">Watch for this</span>
+        <p>Chinese listings quote prices in CNY and quantities in Chinese units. Currency and unit conversion happen at extraction time, not display time, and the original values stay in the record so an error is traceable rather than baked in.</p>
+      </div>
+      <div class="call risk">
+        <span class="lbl">Be honest about this</span>
+        <p>Scrapers break. Sites change markup, add challenges, rotate endpoints. The design assumption is not that extraction always succeeds — it is that <b>failure falls through cleanly</b> to the next rung and finally to a human paste or an RFQ email, and that the table says which rung each row came from.</p>
+      </div>
+    </section>
+
+    <section id="table">
+      <h2 class="sec"><span class="n">06</span>The table</h2>
+      <hr class="rule">
+      <p>The deliverable. Everything upstream exists to fill these columns, and everything downstream is a question about them.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Supplier</th><th>Source</th><th>Specs</th><th style="text-align:right">Unit</th><th>MOQ</th><th>Incoterm</th><th style="text-align:right">Lead</th><th style="text-align:right">Landed/unit</th><th>State</th></tr></thead>
+          <tbody>
+            <tr><td>Hunan Firstrate</td><td class="mono">manufacturer</td><td>full match</td><td class="num">$41.00</td><td class="num">10</td><td class="mono">FOB</td><td class="num">18 d</td><td class="num">$63.20</td><td><span class="st v">verified</span></td></tr>
+            <tr><td>Shenzhen trading co.</td><td class="mono">alibaba</td><td>full match</td><td class="num">$38.50</td><td class="num">50</td><td class="mono">EXW</td><td class="num">25 d</td><td class="num">$64.90</td><td><span class="st l">listed</span></td></tr>
+            <tr><td>Regional distributor</td><td class="mono">robu.in</td><td>full match</td><td class="num">$71.00</td><td class="num">1</td><td class="mono">DDP</td><td class="num">7 d</td><td class="num">$71.00</td><td><span class="st v">verified</span></td></tr>
+            <tr><td>Unknown seller</td><td class="mono">made-in-china</td><td>full match</td><td class="num">&mdash;</td><td class="num">20</td><td class="mono">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td><span class="st r">rfq sent</span></td></tr>
+            <tr><td>Alternative maker</td><td class="mono">baidu</td><td><b>4&ndash;20 mA</b></td><td class="num">$29.00</td><td class="num">10</td><td class="mono">FOB</td><td class="num">15 d</td><td class="num">&mdash;</td><td><span class="st x">disqualified</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Four things this table does that a spreadsheet of scraped prices does not:</p>
+      <ul>
+        <li><b>Every row states its provenance.</b> A verified quote and a listing scraped from a marketplace are not the same evidence, and the table never pretends they are.</li>
+        <li><b>The cheapest unit price is not the cheapest row.</b> At $38.50 EXW with MOQ 50, the Shenzhen listing lands above the manufacturer's $41 FOB. That inversion is the whole point.</li>
+        <li><b>Disqualification is visible, not silent.</b> The cheapest option on the page fails on output signal — 4&ndash;20&nbsp;mA where the requirement is RS485 — so it is shown, struck from ranking, with the failing parameter named.</li>
+        <li><b>Missing data is a state, not a blank.</b> A supplier with no published price is marked <em>rfq sent</em>, not dropped.</li>
+      </ul>
+      <p>Quantity sensitivity sits underneath it: change 50 to 10 and the ranking reshuffles, because MOQ and tier breaks bite. Since his volumes vary, that recomputation is a first-class feature rather than a footnote.</p>
+    </section>
+
+    <section id="landed">
+      <h2 class="sec"><span class="n">07</span>Landed cost</h2>
+      <hr class="rule">
+      <p>The number that decides things, and the number nobody computes. Uzbekistan applies <b>VAT at 12&nbsp;% on CIF plus duty</b>, with duty typically around 20&nbsp;% for electronics and ranging 5&ndash;70&nbsp;% by HS code. Below $100 is de minimis.</p>
+
+      <pre><code><span class="c"># computed in Python, never generated as text by the model</span>
+CIF      = goods + freight + insurance
+duty     = CIF * duty_rate(hs_code)
+vat      = (CIF + duty) * 0.12
+total    = CIF + duty + vat + bank_fee + broker_fee
+per_unit = total / qty</code></pre>
+
+      <p>Twenty units quoted at $45 FOB:</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Line</th><th>Basis</th><th style="text-align:right">USD</th></tr></thead>
+          <tbody>
+            <tr><td>Goods</td><td>20 &times; $45</td><td class="num">900.00</td></tr>
+            <tr><td>Freight to Tashkent</td><td>quoted</td><td class="num">120.00</td></tr>
+            <tr><td><b>CIF</b></td><td></td><td class="num">1 020.00</td></tr>
+            <tr><td>Customs duty</td><td>20 % of CIF</td><td class="num">204.00</td></tr>
+            <tr><td>VAT</td><td>12 % of CIF + duty</td><td class="num">146.88</td></tr>
+            <tr class="total"><td>Total landed</td><td>$68.55 per unit</td><td class="num">1 370.88</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>A $45 sticker price is a <b>$68.55</b> part — 52&nbsp;% higher. Set that against a $52 DDP quote where freight and duty are already inside the number, and the ranking inverts. This is arithmetic a spreadsheet could do, if anyone ever did it.</p>
+
+      <h3>Freight, with no usual forwarder</h3>
+      <p>There is no regular forwarder to model, so freight is a generic estimate with editable defaults rather than a lookup. One domain fact shapes the whole table: <b>Uzbekistan is landlocked</b>. There is no sea freight option — everything from China arrives by air, rail or road.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Mode</th><th style="text-align:right">Rate</th><th style="text-align:right">Transit</th><th>Fits</th></tr></thead>
+          <tbody>
+            <tr><td>Air express (DHL, FedEx)</td><td class="num">$8&ndash;12 / kg</td><td class="num">5&ndash;9 d</td><td>Small, urgent, samples</td></tr>
+            <tr><td>Air freight</td><td class="num">$4&ndash;6 / kg</td><td class="num">10&ndash;15 d</td><td>Medium batches</td></tr>
+            <tr><td>Road via Kazakhstan</td><td class="num">$2&ndash;3 / kg</td><td class="num">15&ndash;25 d</td><td>Mid volume, no rush</td></tr>
+            <tr><td>Rail, China&ndash;Central Asia</td><td class="num">$1.5&ndash;2.5 / kg</td><td class="num">20&ndash;30 d</td><td>Bulk, planned ahead</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Weight comes from the datasheet where it is stated and from an estimate where it is not — flagged as an estimate either way. Every costing prints the mode and rate it assumed, so a wrong assumption is visible on the row rather than hidden in a total.</p>
+      <div class="call risk">
+        <span class="lbl">Treat these as placeholders</span>
+        <p>Those rates are starting defaults, not quotes. The first real invoice he logs should replace them. Until then the freight figure is the softest number in the table and the table should say so.</p>
+      </div>
+
+      <div class="call gate">
+        <span class="lbl">Human gate</span>
+        <p>Duty follows from HS code, and classification is genuinely ambiguous for technical goods. The agent proposes a code with the tariff line quoted; he overrides it. The assumed code prints on every costing, so a wrong one is visible rather than buried.</p>
+      </div>
+    </section>
+
+    <section id="equiv">
+      <h2 class="sec"><span class="n">08</span>Equivalence checking</h2>
+      <hr class="rule">
+      <p><em>“Is this cheaper one actually a substitute?”</em> — the question with the most money attached and the highest chance of an expensive wrong answer. Searching wide guarantees it comes up constantly, because Baidu will surface a dozen near-identical-looking sensors at half the price.</p>
+      <div class="gridcards">
+        <div class="card">
+          <span class="tag">Hard blocker</span>
+          <h4>Disqualifies outright</h4>
+          <p>Output signal RS485 against 4&ndash;20&nbsp;mA. Supply voltage. Probe material. IP rating below requirement. Thread or mounting standard. No price advantage survives these.</p>
+        </div>
+        <div class="card">
+          <span class="tag">Soft difference</span>
+          <h4>A trade-off to weigh</h4>
+          <p>Accuracy &plusmn;3&nbsp;% against &plusmn;2&nbsp;%. Response time. Cable length. Warranty months. Range wider than needed. Scored, not rejected.</p>
+        </div>
+        <div class="card">
+          <span class="tag">Unknown</span>
+          <h4>Say so</h4>
+          <p>The datasheet does not state it. Reported as a gap with a suggested question for the supplier — never quietly assumed to match.</p>
+        </div>
+      </div>
+      <p>This is also the honest justification for the multimodal requirement in the course brief. Datasheet specifications live in <b>tables and diagrams</b>, frequently as images inside the PDF. Captioning them with a vision model so they become searchable is not a gimmick here — without it, half the specifications are invisible to retrieval.</p>
+      <div class="call risk">
+        <span class="lbl">Critic rule</span>
+        <p>A part failing any mandatory specification is never ranked and never recommended. It appears as disqualified, with the failing parameter named, so he can overrule it if he knows something the datasheet does not.</p>
+      </div>
+    </section>
+
+    <section id="clarify">
+      <h2 class="sec"><span class="n">09</span>Asking follow-up questions</h2>
+      <hr class="rule">
+      <p>Half the requests that reach a sourcing engineer are underspecified. Guessing produces a confident, useless table. So the graph has a <code>clarify</code> node that can interrupt from any stage, ask, and resume.</p>
+
+      <div class="dlg">
+        <div class="turn u"><span class="who">Him</span><p class="said">find me FST100-2006A</p></div>
+        <div class="turn a"><span class="who">Desk</span><p class="said">Soil temperature / moisture / EC sensor, RS485, Hunan Firstrate. Two things before I search — how many, and is RS485 fixed or would 4&ndash;20&nbsp;mA also work? That second one roughly doubles the supplier pool.</p></div>
+        <div class="turn u"><span class="who">Him</span><p class="said">50, RS485 only</p></div>
+        <div class="turn a"><span class="who">Desk</span><p class="said">Searching. I&#8217;ll assume delivery to Tashkent and quote landed unless you say otherwise.</p></div>
+      </div>
+
+      <div class="call key">
+        <span class="lbl">The rule that keeps it usable</span>
+        <p><b>Ask only what changes the answer.</b> Quantity always does — it moves MOQ, tier pricing and freight mode. Whether a spec is mandatory or preferred does, because it decides the size of the candidate pool. The PO number does not. Warranty preference usually does not.</p>
+        <p>Everything else gets a stated assumption rather than a question. Two questions maximum before doing useful work; anything further can be asked once there is a table to point at.</p>
+      </div>
+      <p>Mechanically this is the same LangGraph interrupt as the approval gates — the graph pauses, persists, and resumes on his reply. It is not a separate conversation system.</p>
+    </section>
+
+    <section id="memory">
+      <h2 class="sec"><span class="n">10</span>Purchase log</h2>
+      <hr class="rule">
+      <p>He tells it what he bought in one sentence, whenever he remembers. The agent then completes the record — because a purchase is written once and cannot be reconstructed later.</p>
+
+      <div class="dlg">
+        <div class="turn u"><span class="who">Him</span><p class="said">bought 56 FST100 from Firstrate, $41 each, came in 18 days</p></div>
+        <div class="turn a"><span class="who">Desk</span><p class="said">Got most of it. Filling the gaps:<br><br>
+        <b>part</b> FST100-2006A or -2006C?<br>
+        <b>price basis</b> was $41 FOB, EXW or delivered?<br>
+        <b>freight + duty</b> what did you pay, if you know<br>
+        <b>ordered on</b> roughly when?<br>
+        <b>condition</b> all arrived working?</p></div>
+        <div class="turn u"><span class="who">Him</span><p class="said">2006A, FOB, freight was about 90, duty and vat maybe 150, ordered start of june, all fine</p></div>
+        <div class="turn a"><span class="who">Desk</span><p class="said">Saved. 56 &times; FST100-2006A, Hunan Firstrate, $41.00 FOB, $2 296 goods + $90 freight + $150 duties = <b>$45.29 landed per unit</b>. Ordered 1 Jun, received 19 Jun, 18 days actual against no promise recorded.<br><br>Firstrate is now a known-good supplier and ranks higher in future searches. Your real air-freight rate works out around $1.60/kg — I&#8217;ll use that instead of the default estimate.</p></div>
+      </div>
+
+      <div class="call key">
+        <span class="lbl">Why this asks more than §09 does</span>
+        <p>The clarify node before a search asks the minimum, because he wants results fast and a wrong assumption costs one re-run.</p>
+        <p>The purchase log asks for <b>everything</b>, because this record is permanent and unrecoverable. A missing price basis silently corrupts every future comparison against it. The questions are batched into one message rather than asked one at a time, so it still costs him a single reply.</p>
+      </div>
+
+      <h3>The full record</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Field</th><th>Source</th><th>Why it earns a question</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">part, supplier, qty</td><td>usually in his sentence</td><td>Identity of the purchase</td></tr>
+            <tr><td class="mono">unit_price</td><td>usually in his sentence</td><td>The benchmark for future quotes</td></tr>
+            <tr><td class="mono">price_basis</td><td>asked</td><td>$41 FOB and $41 delivered are different numbers</td></tr>
+            <tr><td class="mono">freight_paid</td><td>asked</td><td>Calibrates the §07 freight defaults to reality</td></tr>
+            <tr><td class="mono">duty_vat_paid</td><td>asked</td><td>Confirms or corrects the assumed HS rate</td></tr>
+            <tr><td class="mono">ordered_on, received_on</td><td>asked</td><td>Real lead time, which beats any promised one</td></tr>
+            <tr><td class="mono">condition</td><td>asked</td><td>Quality signal, feeds the trust score</td></tr>
+            <tr><td class="mono">would_buy_again</td><td>inferred, confirmable</td><td>One flag that drives supplier weighting</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Everything derived — landed per unit, actual lead days, implied freight rate per kg — is computed and stored alongside, so the History agent can query it without recalculating.</p>
+
+      <p>The sophisticated version of this feature is an ERP integration. It would be more impressive and it would never get used. A sentence typed into a chat box is the version that actually accumulates data — and the data is what makes everything else smart:</p>
+      <ul>
+        <li><b>Real prices</b> to compare new quotes against, rather than list prices.</li>
+        <li><b>Real lead times</b>, which are usually longer than the promised ones.</li>
+        <li><b>Trust scores</b> that come from delivery record instead of guesswork.</li>
+        <li><b>Search weighting</b> — a supplier he has bought from is automatically promoted in future ranking.</li>
+      </ul>
+      <p>The log is also what makes the text-to-SQL agent worth having. Without it there is nothing to query and F5 is a toy; with it, <em>“what have we paid for RS485 soil sensors over the last year, and who delivered on time?”</em> is a real question with a real answer.</p>
+    </section>
+
+    <section id="rfq">
+      <h2 class="sec"><span class="n">11</span>RFQ email — the fallback</h2>
+      <hr class="rule">
+      <p>Some suppliers publish nothing. The listing says <em>contact supplier</em>, or the price shown is at a quantity that does not apply. For those rows the agent drafts an RFQ email rather than leaving a blank cell.</p>
+      <p>The loop, kept deliberately small:</p>
+      <ol>
+        <li>Draft one email per supplier from the requirement — part, quantity, specs, destination, asking for FOB and DDP, MOQ, lead time, tier breaks and <b>shipping weight</b>.</li>
+        <li><b>He approves, edits or drops each one.</b> Nothing sends without that.</li>
+        <li>Send with a reference code in the subject so replies match back to the request and supplier.</li>
+        <li>Parse replies — body text, PDF or spreadsheet attachment — into the same offer schema everything else uses, with per-field confidence.</li>
+        <li>After a few days of silence, draft a chase. Also approved before sending.</li>
+      </ol>
+      <p>Parsed offers land in the same table as scraped ones, marked <span class="st v">verified</span> because a quote addressed to us at our quantity is better evidence than a public listing.</p>
+      <div class="call key">
+        <span class="lbl">This is also where weight comes from</span>
+        <p>The §07 freight model needs a shipping weight per part and datasheets routinely omit it. Rather than guessing from dimensions, the RFQ simply asks — suppliers know it, it costs nothing to include in a question we are already sending, and the answer is authoritative.</p>
+        <p>Until a supplier answers, weight is an estimate and the row says so. Once one does, it is stored against the part and reused for every future costing.</p>
+      </div>
+      <div class="call gate">
+        <span class="lbl">Non-negotiable</span>
+        <p>Nothing is ever sent without approval — not the first RFQ, not a chase. These go to real suppliers under his name, and his relationships are the asset. There is no code path that sends autonomously.</p>
+      </div>
+      <div class="call risk">
+        <span class="lbl">Scope discipline</span>
+        <p>This section is a fallback and should stay one. If it starts growing an inbox UI, threading rules and templates, the project has drifted back into being a mail client. The table is the product.</p>
+      </div>
+    </section>
+
+    <section id="data">
+      <h2 class="sec"><span class="n">12</span>Data model</h2>
+      <hr class="rule">
+      <p>Deliberately flat, with obvious column names. Vague schemas are exactly where text-to-SQL agents fail — they produce syntactically valid, semantically wrong queries that look plausible.</p>
+
+      <pre><code>parts(id, mpn, manufacturer, description, category,
+      hs_code, datasheet_url, lifecycle)
+
+part_specs(id, part_id, key, value, unit, mandatory)   <span class="c">-- flexible KV: handles "anything technical"</span>
+
+sources(id, name, domain, kind, access, region, currency,
+      ships_to, weight, typical_lead_days, times_used)  <span class="c">-- weight, not a filter (§04)</span>
+
+suppliers(id, name, source_id, country, contact_email,
+      trust_score, times_used, on_time_rate, notes)
+
+requests(id, title, part_id, qty, qty_tiers, need_by,
+      destination, incoterm_pref, status, created)
+
+offers(id, request_id, supplier_id, part_id, qty, unit_price,
+      currency, incoterm, moq, tier_breaks, lead_days,
+      warranty_months, url, source_kind, rung, confidence,
+      state, captured_at)                               <span class="c">-- rung: which extraction tier produced it</span>
+
+landed_costs(id, offer_id, qty, goods, freight, hs_code,
+      duty_pct, duty, vat, fees, total, per_unit, computed_at)
+
+purchases(id, part_id, supplier_id, qty, unit_price,
+      currency, price_basis, lead_days_actual,
+      purchased_on, notes)                              <span class="c">-- filled from one sentence (§10)</span>
+
+rfqs(id, request_id, supplier_id, ref_code, thread_id,
+      sent_at, status, last_chase_at)</code></pre>
+
+      <p>Three columns doing unusual work:</p>
+      <ul>
+        <li><code>part_specs</code> as key/value rather than fixed columns is what lets the system handle a soil sensor this week and a pressure transmitter next week without a migration.</li>
+        <li><code>offers.rung</code> and <code>confidence</code> record how the data was obtained. The critic reads them, and the table displays them — a price scraped from a listing four months ago is not treated as equal to a quote received on Tuesday.</li>
+        <li><code>purchases.price_basis</code> exists because of the §10 dialogue. Logging <code>$41</code> without knowing whether it included freight would silently corrupt every future comparison.</li>
+      </ul>
+    </section>
+
+    <section id="stack">
+      <h2 class="sec"><span class="n">13</span>Stack</h2>
+      <hr class="rule">
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Layer</th><th>Choice</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td>Orchestration</td><td>LangGraph</td><td>Cycles, checkpointing, interrupts for clarify and approve</td></tr>
+            <tr><td>Model gateway</td><td>OpenRouter</td><td>One key, any model, swap by config line</td></tr>
+            <tr><td>Default model</td><td><code>gemini-2.5-flash-lite</code></td><td>1M context, PDF and image vision, tool calling, JSON-schema structured output</td></tr>
+            <tr><td>Embeddings</td><td>FastEmbed, local</td><td>Runs on the machine &mdash; no key, no cost, no rate limit</td></tr>
+            <tr><td>Search</td><td>SerpApi</td><td>Google and Baidu through one API, 250/month free</td></tr>
+            <tr><td>Scraping</td><td>Playwright + stealth</td><td>Marketplaces that block plain fetch</td></tr>
+            <tr><td>Vector store</td><td>Qdrant, embedded</td><td>No server, no signup, no cost</td></tr>
+            <tr><td>Relational</td><td>SQLite</td><td>Text-to-SQL target and application store in one file</td></tr>
+            <tr><td>Email</td><td>IMAP / SMTP, his account</td><td>Fallback path only; no OAuth needed for the MVP</td></tr>
+            <tr><td>API</td><td>FastAPI</td><td>Streams agent steps to the frontend</td></tr>
+            <tr><td>Frontend</td><td>Next.js</td><td>Table-first, chat beside it. Free on Vercel</td></tr>
+            <tr><td>Tracing</td><td>Langfuse</td><td>Debugging a five-agent graph without traces is guesswork</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Why flash-lite is the right default, and where it is not</h3>
+      <p>Most of this pipeline is high-volume, structurally simple work — read a listing, pull out price and MOQ and lead time, emit JSON to a fixed schema. That is precisely what a lightweight model is built for, and doing it on a large model would be paying reasoning prices for extraction work.</p>
+      <p>Two jobs are different in kind: <b>supervisor routing</b> and <b>equivalence checking</b>. Deciding whether a 4&ndash;20&nbsp;mA sensor can substitute for an RS485 one is real reasoning with a real cost to getting it wrong.</p>
+      <div class="call key">
+        <span class="lbl">The advantage of going through OpenRouter</span>
+        <p>Model choice becomes a config line rather than an architecture decision. Run everything on flash-lite, measure with the §14 golden set, and if equivalence or routing accuracy is weak, point <em>only those two nodes</em> at a stronger model. Per-task routing costs one dictionary.</p>
+      </div>
+
+      <h3>Where it runs</h3>
+      <p>Playwright is the only component with real infrastructure demands, and it sets the floor. Headless Chromium wants 2&nbsp;GB; it survives on 1&nbsp;GB with <code>--disable-dev-shm-usage</code>, <code>--ipc=host</code> and one browser at a time, but fragilely.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Option</th><th>Gives</th><th>Verdict</th></tr></thead>
+          <tbody>
+            <tr><td>Local machine</td><td>Everything, no limits</td><td><b>Development</b> &mdash; P0 through P3 run here</td></tr>
+            <tr><td>e2-small, europe-central2</td><td>2 GB, ~60 ms from Tashkent, on the $300 credit</td><td><b>MVP deployment</b> &mdash; the recommendation</td></tr>
+            <tr><td>e2-micro, us-central1</td><td>1 GB, Always Free forever, ~200 ms</td><td>Fallback when credit runs out</td></tr>
+            <tr><td>Cloud Run Job for scraping</td><td>2 GB bursts, billed only while running</td><td>Right answer if scraping outgrows the VM</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="call key">
+        <span class="lbl">The decision that actually matters</span>
+        <p>Not which host — <b>keep the scraper behind an interface</b> from the first commit, so it can run in-process locally and as a remote job in production. That is a few lines now and a rewrite later.</p>
+        <p>Everything else — FastAPI, SQLite, embedded Qdrant, FastEmbed — is light enough that hosting is not a design constraint.</p>
+      </div>
+
+      <h3>Embeddings stay local, deliberately</h3>
+      <p>OpenRouter does expose an OpenAI-compatible <code>/embeddings</code> endpoint, so one key genuinely could cover everything. FastEmbed is still the better call here: the datasheet corpus is small, embedding runs happen in bursts during ingestion, and doing it locally removes a paid call, a network dependency and a rate limit from the hottest loop in the system. If the corpus ever outgrows the laptop, switching is a one-line change.</p>
+
+      <div class="call risk">
+        <span class="lbl">Budgets to respect</span>
+        <p><b>SerpApi is the binding constraint</b> — 250 searches a month, and a single thorough sourcing run can burn five. Cache by part number, never re-search on an incidental chat message.</p>
+        <p>Model spend is the looser one: flash-lite sits in the cheapest tier and a full run should cost cents, but scraped pages are long. Truncate aggressively before sending a page to extraction rather than posting whole documents into a 1M-token window because it fits.</p>
+      </div>
+    </section>
+
+    <section id="rubric">
+      <h2 class="sec"><span class="n">14</span>Course requirement coverage</h2>
+      <hr class="rule">
+      <p class="sub">All fourteen features from the Multi-Agent AI Analyst rubric, mapped. The build is not limited to them.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>#</th><th>Requirement</th><th>How it is met here</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">F1</td><td>Shared state &amp; config</td><td><code>SourcingRequest</code> state, keys from <code>.env</code></td></tr>
+            <tr><td class="mono">F2</td><td>Ingestion &amp; vector store</td><td>Datasheets into Qdrant, spec tables captioned by vision model</td></tr>
+            <tr><td class="mono">F3</td><td>Retriever agent</td><td>Part agent over datasheets</td></tr>
+            <tr><td class="mono">F4</td><td>Web agent</td><td>Scout — Google + Baidu, weighted registry, three extraction rungs</td></tr>
+            <tr><td class="mono">F5</td><td>Text-to-SQL agent</td><td>History agent over the purchase log</td></tr>
+            <tr><td class="mono">F6</td><td>Code agent</td><td>Analyst — landed cost, quantity sensitivity, charts</td></tr>
+            <tr><td class="mono">F7</td><td>Supervisor</td><td>Routes chat questions; research pipeline drives the workflow</td></tr>
+            <tr><td class="mono">F8</td><td>Critic</td><td>Provenance enforcement plus the mandatory-spec gate</td></tr>
+            <tr><td class="mono">F9</td><td>Graph wiring</td><td>Pipeline and ask graphs over one state, both with step budgets</td></tr>
+            <tr><td class="mono">F10</td><td>Long-term memory</td><td>Purchase log plus past sourcing results in the vector store</td></tr>
+            <tr><td class="mono">F11</td><td>Evaluation harness</td><td>Golden set with known answers — see below</td></tr>
+            <tr><td class="mono">F12</td><td>Observability</td><td>Langfuse tracing across all five agents</td></tr>
+            <tr><td class="mono">F13</td><td>Streaming frontend</td><td>Table fills live as the Scout finds and extracts</td></tr>
+            <tr><td class="mono">F14</td><td>Deployment</td><td>Render or Colab share for the API, Vercel for the frontend</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="call key">
+        <span class="lbl">Two things worth saying in the defence</span>
+        <p><b>F13 is unusually good here.</b> Watching a table populate row by row as the agent searches Baidu, opens a listing and extracts a price is a far better demo than tokens streaming into a chat bubble.</p>
+        <p><b>F11 has real ground truth.</b> We hand-compute the landed costs and hand-check the spec matches for a fixed set of parts, so evaluation measures correctness rather than plausibility. Most projects cannot do this.</p>
+      </div>
+    </section>
+
+    <section id="build">
+      <h2 class="sec"><span class="n">15</span>Build order</h2>
+      <hr class="rule">
+      <div class="call gate">
+        <span class="lbl">MVP boundary</span>
+        <p>One part number in. Search runs on Google and Baidu. At least five real offers extracted from live sites. Landed cost computed. One table out, with provenance per row. Nothing else until that runs end to end.</p>
+      </div>
+      <div class="stage">
+        <div class="stage-head"><span class="sn">P0</span><h4>Foundation</h4></div>
+        <p>State schema, config, SQLite created, source registry seeded with his real favourites and starting weights. Datasheet ingestion into Qdrant with image captioning.</p>
+      </div>
+      <div class="stage">
+        <div class="stage-head"><span class="sn">P1</span><h4>Scout &#8212; the spine</h4></div>
+        <p>Search across both engines, weighted ranking, then the extraction ladder rung by rung: direct fetch first, Made-in-China JSON second, Playwright last. Built and tested before anything else, because every other component consumes its output.</p>
+      </div>
+      <div class="stage">
+        <div class="stage-head"><span class="sn">P2</span><h4>Analyst and the table</h4></div>
+        <p>Landed cost calculator unit-tested against hand-computed figures first — it is arithmetic and it must be exactly right. Then normalisation, the comparison table, and quantity sensitivity.</p>
+      </div>
+      <div class="stage">
+        <div class="stage-head"><span class="sn">P3</span><h4>Memory and clarify</h4></div>
+        <p>Purchase log with the follow-up dialogue, History agent over it, and the clarify interrupt. Small features, disproportionate effect on how the thing feels to use.</p>
+      </div>
+      <div class="stage">
+        <div class="stage-head"><span class="sn">P4</span><h4>Orchestration and critic</h4></div>
+        <p>Supervisor, critic, graph wiring with step budgets. Late on purpose — there is nothing worth routing between until the specialists work.</p>
+      </div>
+      <div class="stage">
+        <div class="stage-head"><span class="sn">P5</span><h4>Equivalence, RFQ, ship</h4></div>
+        <p>Alternate-part checking, the RFQ email fallback, golden evaluation set, Langfuse, frontend, deploy.</p>
+      </div>
+      <p>Equivalence checking (§08) is the most impressive feature and it is still scheduled fifth, because a table of real offers with correct landed cost is worth more than a clever feature sitting on top of nothing.</p>
+    </section>
+
+    <section id="open">
+      <h2 class="sec"><span class="n">16</span>Risks and open questions</h2>
+      <hr class="rule">
+
+      <h3>Risks, with the mitigation already chosen</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
+          <tbody>
+            <tr><td><b>Alibaba is CAPTCHA-walled</b></td><td>Confirmed in build: HTTP 200, slider CAPTCHA, 166 chars of body. Not solved and not attempted. Routed to manual paste or RFQ, which suits it anyway since its listed prices are indicative.</td></tr>
+            <tr><td>Model asked to compare across currencies</td><td>It read 260 CNY as dearer than $40 USD (it is $38.67). Live bug. The analyst now states USD equivalents and pre-computes both winners, so the model reads a comparison rather than performing one.</td></tr>
+            <tr><td>Model infers a value where being wrong is silent</td><td>Code guards, not prompts: price basis is never inferred, quantity is always asked, the SQL agent never computes in prose. All three were live bugs.</td></tr>
+            <tr><td>Scrapers break when sites change</td><td>Ladder design — failure falls through to the next rung, then to paste or RFQ. Every row shows which rung produced it.</td></tr>
+            <tr><td>Extraction returns a plausible but wrong price</td><td>Per-field confidence, provenance shown in the table, and the critic refusing any figure without a source URL and date.</td></tr>
+            <tr><td>Chinese pages misread — wrong currency or unit</td><td>Original CNY value and unit stay in the record beside the converted one, so an error is traceable rather than baked in.</td></tr>
+            <tr><td>Freight defaults are guesses until real invoices exist</td><td>Flagged as the softest number in the table; recalibrated from the first logged purchase.</td></tr>
+            <tr><td>HS misclassification corrupts every costing</td><td>Human gate, tariff line cited, assumed code printed on every output.</td></tr>
+            <tr><td>flash-lite underperforms on equivalence reasoning</td><td>Measured against the golden set. If weak, point that node alone at a stronger model — one config line, §13.</td></tr>
+            <tr><td>SerpApi 250-search monthly cap</td><td>Cache by part number, no re-search on incidental chat turns.</td></tr>
+            <tr><td>Eval scores read as deterministic when they are not</td><td>Routing occasionally flakes to 6/7 at temperature 0, then passes three runs straight. Report a rate over several runs, never one result.</td></tr>
+            <tr><td>An agent emails a real supplier under his name</td><td>Structurally impossible. <code>mailer.send</code> refuses any draft not marked approved, <code>dry_run</code> defaults to true, and it is the only function that sends. Verified: an unapproved send returns 403.</td></tr>
+            <tr><td>The RFQ fallback grows back into the centre</td><td>Explicit scope note in §11. If it needs an inbox UI, it has drifted.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Settled</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Question</th><th>Answer</th><th>Consequence</th></tr></thead>
+          <tbody>
+            <tr><td>Favourite sources</td><td>Google + Baidu as engines; Alibaba and Made-in-China as favourite marketplaces</td><td>Registry seeded, §04</td></tr>
+            <tr><td>Chinese-language pages</td><td>Follow and extract, translating to English</td><td>Full Baidu coverage, §05</td></tr>
+            <tr><td>Importable history</td><td>None &mdash; schema stays generic, starts empty</td><td>Purchase log is the only source of history, §10</td></tr>
+            <tr><td>Freight</td><td>No usual forwarder &mdash; generic per-kg model with defaults</td><td>Air, road and rail table, §07</td></tr>
+            <tr><td>Currency</td><td>USD throughout</td><td>All conversion happens at extraction</td></tr>
+            <tr><td>Email account</td><td>His personal address for now</td><td>Plain IMAP / SMTP, no OAuth, §13</td></tr>
+            <tr><td>Shipping weight</td><td>Asked in the RFQ, estimated until answered</td><td>Weight question added to the RFQ, §11</td></tr>
+            <tr><td>Hosting</td><td>Local for development, e2-small on GCP credit for MVP</td><td>Scraper kept behind an interface, §13</td></tr>
+            <tr><td>SerpApi tier</td><td>Free 250/month accepted</td><td>Caching by part number is mandatory, not optional</td></tr>
+            <tr><td>1688</td><td>Dropped</td><td>Removed from the extraction ladder</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Still open</h3>
+      <ol class="qs">
+        <li><b>How wide is a search.</b> Twenty candidate pages costs more SerpApi calls and more extraction than five, and finds better options. What is the right default before the 250/month cap bites? Answer this once there is real behaviour to measure.</li>
+        <li><b>Stale offers.</b> A scraped price ages. After how many days does the table mark a row stale and offer to re-check it? Thirty is a guess; the purchase log will eventually say.</li>
+      </ol>
+      <p>Both are tuning decisions that need data we do not have yet. Neither blocks the build.</p>
+
+      <div class="call key">
+        <span class="lbl">Living document</span>
+        <p>This will change during the build. Section 15 is the part most likely to move. Sections 02, 04, 05 and 06 are the ones worth holding on to — they carry the reason the project is worth building at all.</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <div class="footer-in">
+    <span>Sourcing Desk &#183; design v1.1</span>
+    <span>Research-first, email as fallback</span>
+    <span>Status: F1&ndash;F14 complete · intake wired</span>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('.rail a'));
+    var pairs = links.map(function (a) {
+      return { link: a, el: document.querySelector(a.getAttribute('href')) };
+    }).filter(function (p) { return p.el; });
+
+    if (!('IntersectionObserver' in window) || !pairs.length) return;
+
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        pairs.forEach(function (p) { p.link.classList.toggle('on', p.el === e.target); });
+      });
+    }, { rootMargin: '-12% 0px -72% 0px', threshold: 0 });
+
+    pairs.forEach(function (p) { obs.observe(p.el); });
+  })();
+</script>

@@ -1,0 +1,31 @@
+# Pins are lower-bounds where a floor matters and exact only where a
+# breaking change would bite. fastembed constrains pillow, so pillow is
+# left to the resolver -- PyMuPDF handles image extraction directly.
+
+# --- core ---
+python-dotenv>=1.0.1
+pydantic>=2.9,<3
+pydantic-settings>=2.6,<3
+
+# --- llm (OpenRouter is OpenAI-compatible) ---
+openai>=1.57,<2
+
+# --- embeddings + vector store (both local, no keys) ---
+fastembed>=0.4.2,<0.5
+qdrant-client>=1.12,<2
+
+# --- datasheet ingestion ---
+pymupdf>=1.24,<2
+
+# --- api (P4) ---
+fastapi>=0.115,<1
+uvicorn[standard]>=0.34,<1
+
+# --- html parsing (P1) ---
+beautifulsoup4>=4.12,<5
+
+# --- browser rung (P2.5) ---
+playwright>=1.49,<2
+
+# --- orchestration (P4) ---
+langgraph>=0.2.60,<1
